@@ -1,3 +1,0 @@
-active-mq-0.mdaas-engines-dev.default.svc.cluster.local:8161
-
-active-mq.mdaas-engines-dev.default.svc.cluster.local:8161
