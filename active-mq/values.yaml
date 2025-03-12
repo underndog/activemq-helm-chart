@@ -107,10 +107,6 @@ triggerAuth:
       name: mdaas-secret
       key: ACTIVEMQ_PASSWORD
 
-# remove #
-keda:
-  enabled: false
-
 # PVC configuration
 persistence:
   enabled: true
