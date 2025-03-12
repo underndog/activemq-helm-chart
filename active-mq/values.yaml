@@ -2,10 +2,16 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+#######################
+# Global Settings    #
+#######################
+nameOverride: ""
+fullnameOverride: ""
 replicaCount: 1
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+#######################
+# Image Settings     #
+#######################
 image:
   repository: apache/activemq-artemis
   # This sets the pull policy for images.
@@ -19,9 +25,10 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+#######################
+# Security Settings  #
+#######################
 serviceAccount:
-  # Specifies whether a service account should be created
   create: true
   # Automatically mount a ServiceAccount's API credentials?
   automount: true
@@ -31,15 +38,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-podAnnotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "9404"
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-podLabels: {}
-
 podSecurityContext:
   fsGroup: 1000
 
@@ -47,11 +45,33 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+#######################
+# Pod Settings       #
+#######################
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9404"
+podLabels: {}
+
+# Resource limits and requests
+resources: {}
+  # limits:
+  #   cpu: "500m"
+  #   memory: "1Gi"
+  # requests:
+  #   cpu: "200m"
+  #   memory: "512Mi"
+
+# Pod scheduling settings
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+#######################
+# Service Settings   #
+#######################
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   ports:
     - name: stomp
       port: 61613
@@ -72,15 +92,9 @@ service:
       port: 61616
       targetPort: 61616
 
-resources:
-  requests:
-    memory: "512Mi"
-    cpu: "200m"
-  limits:
-    memory: "1Gi"
-    cpu: "500m"
-
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+#######################
+# Health Checks      #
+#######################
 livenessProbe:
   httpGet:
     path: /console/health
@@ -97,23 +111,17 @@ readinessProbe:
   timeoutSeconds: 5
   periodSeconds: 10
 
-triggerAuth:
-  name: "activemq-auth"
-  secretTargetRef:
-    - parameter: username
-      name: mdaas-secret
-      key: ACTIVEMQ_USER
-    - parameter: password
-      name: mdaas-secret
-      key: ACTIVEMQ_PASSWORD
-
-# PVC configuration
+#######################
+# Storage Settings   #
+#######################
 persistence:
   enabled: true
   size: 10Gi
   storageClass: "gp3"
 
-# Additional volumes on the output Deployment definition.
+#######################
+# Volume Settings    #
+#######################
 volumes:
   - name: artemis-config-volume
     configMap:
@@ -124,10 +132,10 @@ volumes:
   - name: jolokia-war
     emptyDir: {}
 
-# Additional volumeMounts on the output Deployment definition.
 volumeMounts:
   - name: artemis-persistent-storage
     mountPath: /var/lib/artemis/data
+  # Configuration files
   - name: artemis-config-volume
     mountPath: /var/lib/artemis/etc/broker.xml
     subPath: broker.xml
@@ -140,6 +148,7 @@ volumeMounts:
   - name: artemis-config-volume
     mountPath: /var/lib/artemis/etc/login.config
     subPath: login.config
+  # Properties files
   - name: artemis-config-volume
     mountPath: /var/lib/artemis/etc/artemis-users.properties
     subPath: artemis-users.properties
@@ -155,24 +164,23 @@ volumeMounts:
   - name: artemis-config-volume
     mountPath: /var/lib/artemis/etc/broker.properties
     subPath: broker.properties
+  # Web applications
   - name: jolokia-war
     mountPath: /var/lib/artemis/web/jolokia.war
     subPath: jolokia.war
 
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
-
+#######################
+# Init Containers    #
+#######################
 initContainers:
+  # Initialize artemis directories
   - name: init-artemis-dirs
     image: busybox
     command: ['sh', '-c', 'mkdir -p /var/lib/artemis/data/journal /var/lib/artemis/data/bindings /var/lib/artemis/data/paging /var/lib/artemis/data/large-messages && chmod -R 777 /var/lib/artemis/data']
     volumeMounts:
     - name: artemis-persistent-storage
       mountPath: /var/lib/artemis/data
+  # Download Jolokia WAR file
   - name: init-jolokia
     image: curlimages/curl:7.88.1
     command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
