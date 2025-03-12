@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  active-mq:
+  - apiVersion: v2
+    appVersion: 2.39.0
+    created: "2025-03-12T21:25:21.681305916+07:00"
+    description: A Helm chart for Kubernetes
+    digest: cb3c2b5814da5717fdb119d7ccb3ab7b9ec92205babc6e1c0e5df41d87096656
+    name: active-mq
+    type: application
+    urls:
+    - active-mq-1.0.0.tgz
+    version: 1.0.0
+generated: "2025-03-12T21:25:21.680717522+07:00"
