@@ -68,6 +68,8 @@ helm delete my-activemq
 | `authentication.existingSecret` | Name of existing secret to use | `""` |
 | `authentication.defaultUsername` | Default username if not using existing secret | `admin` |
 | `authentication.defaultPassword` | Default password if not using existing secret | `""` (random) |
+| `authentication.secretKeys.username` | Key name for username in the secret | `ACTIVEMQ_USER` |
+| `authentication.secretKeys.password` | Key name for password in the secret | `ACTIVEMQ_PASSWORD` |
 | `podSecurityContext.fsGroup` | Group ID for the pod | `1000` |
 | `securityContext.runAsNonRoot` | Run container as non-root user | `true` |
 | `securityContext.runAsUser` | User ID to run container | `1000` |
@@ -142,12 +144,24 @@ You can customize these files by modifying the ConfigMap template.
 
 ### Authentication
 
-By default, the chart creates a Secret with the following credentials:
-- Username: `admin` (configurable via `authentication.defaultUsername`)
-- Password: Random 16-character string (configurable via `authentication.defaultPassword`)
 
-To use an existing secret, set `authentication.existingSecret` to the name of your secret. The secret must contain the keys `ACTIVEMQ_USER` and `ACTIVEMQ_PASSWORD`.
+1. **Create a new secret** (default behavior):
+   - Set `authentication.create` to `true`
+   - Username: `admin` (configurable via `authentication.defaultUsername`)
+   - Password: Random 16-character string (configurable via `authentication.defaultPassword`)
+   - Secret keys are customizable:
+     - Username key: Set with `authentication.secretKeys.username` (default: `ACTIVEMQ_USER`)
+     - Password key: Set with `authentication.secretKeys.password` (default: `ACTIVEMQ_PASSWORD`)
 
+2. **Use an existing secret**:
+   - Set `authentication.existingSecret` to the name of your secret
+   - Configure the key names to match your existing secret:
+     - Username key: Set with `authentication.secretKeys.username`
+     - Password key: Set with `authentication.secretKeys.password`
+
+3. **No secret creation**:
+   - Set `authentication.create` to `false` and don't provide `authentication.existingSecret`
+   - Default username and password to login into ActiveMQ are `artemis`/`artemis` if no authentication is configured
 
 ## Persistence
 

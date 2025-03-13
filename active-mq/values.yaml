@@ -42,6 +42,10 @@ authentication:
   # Default credentials (used only if existingSecret is not provided)
   defaultUsername: "admin"  # Default username if not using existing secret
   defaultPassword: ""  # If empty, will generate random password
+  # Secret key names
+  secretKeys:
+    username: "ACTIVEMQ_USER"  # Key name for username in the secret
+    password: "ACTIVEMQ_PASSWORD"  # Key name for password in the secret
 
 podSecurityContext:
   fsGroup: 1000
