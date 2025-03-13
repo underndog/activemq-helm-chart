@@ -233,6 +233,14 @@ kubectl logs -f deployment/my-activemq
 kubectl get pods -l app=my-activemq
 ```
 
+## Create Helm Package
+### Commands
+
+```bash
+helm package ./active-mq --destination .
+helm repo index ./ --url  https://underndog.github.io/activemq-helm-chart
+```
+
 ## License
 
 Apache ActiveMQ Artemis is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
