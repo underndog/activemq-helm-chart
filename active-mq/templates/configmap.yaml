@@ -109,18 +109,6 @@ data:
         reload=true;
     };
 
-  artemis-users.properties: |
-    admin=admin,admin
-
-  artemis-roles.properties: |
-    admin=admin
-
-  jmx.access: |
-    admin readwrite
-
-  jmx.password: |
-    admin=admin
-
   broker.properties: |
     # Additional broker properties
     # Enable message ID and timestamp
