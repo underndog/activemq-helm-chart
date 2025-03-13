@@ -124,6 +124,7 @@ readinessProbe:
 # Storage Settings   #
 #######################
 persistence:
+  claimName: pvc-activemq-artemis
   size: 10Gi
   # StorageClass configuration
   storageClass:
@@ -153,7 +154,7 @@ volumes:
       name: activemq-config
   - name: artemis-persistent-storage
     persistentVolumeClaim:
-      claimName: pvc-mdaas-activemq-artemis
+      claimName: pvc-activemq-artemis
   - name: jolokia-war
     emptyDir: {}
 

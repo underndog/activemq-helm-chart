@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-activemq-artemis
+  name: {{ .Values.persistence.claimName }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "active-mq.labels" . | nindent 4 }}

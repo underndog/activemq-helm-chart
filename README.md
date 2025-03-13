@@ -103,6 +103,7 @@ helm delete my-activemq
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `persistence.claimName` | Name of the PersistentVolumeClaim | `pvc-activemq-artemis` |
 | `persistence.size` | PVC size | `10Gi` |
 | `persistence.storageClass.create` | Create a StorageClass | `true` |
 | `persistence.storageClass.name` | StorageClass name | `gp3` |
@@ -165,7 +166,7 @@ You can customize these files by modifying the ConfigMap template.
 
 ## Persistence
 
-The chart mounts a Persistent Volume for storing ActiveMQ data. The volume is claimed using a PersistentVolumeClaim. The default size is 10Gi.
+The chart mounts a Persistent Volume for storing ActiveMQ data. The volume is claimed using a PersistentVolumeClaim with the name specified in `persistence.claimName` (defaults to `pvc-activemq-artemis`). The default storage size is 10Gi.
 
 ## Accessing ActiveMQ
 
