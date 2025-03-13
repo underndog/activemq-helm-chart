@@ -92,7 +92,7 @@ data:
       <jmx-use-broker-name>true</jmx-use-broker-name>
       <jmx-domain>org.apache.activemq.artemis</jmx-domain>
       <!-- Updated attribute name to "auth" -->
-      <connector auth="true"/>
+      <connector auth="false"/>
       <authorisation>
         <!-- Allow anyone to connect to the JMX connector -->
         <entry domain="org.apache.activemq.artemis">
