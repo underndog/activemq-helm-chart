@@ -21,9 +21,6 @@ image:
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
-# This is to override the chart name.
-nameOverride: ""
-fullnameOverride: ""
 
 #######################
 # Security Settings  #
@@ -37,6 +34,14 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+# Authentication configuration (Required for ActiveMQ)
+authentication:
+  create: true  # Set to false to not create a secret for credentials
+  existingSecret: ""  # Specify existing secret name for credentials, if not provided will create new secret
+  # Default credentials (used only if existingSecret is not provided)
+  defaultUsername: "admin"  # Default username if not using existing secret
+  defaultPassword: ""  # If empty, will generate random password
 
 podSecurityContext:
   fsGroup: 1000
@@ -117,7 +122,24 @@ readinessProbe:
 persistence:
   enabled: true
   size: 10Gi
-  storageClass: "gp3"
+  # StorageClass configuration
+  storageClass:
+    # If create is true, will create a new StorageClass
+    create: true
+    # Name of the StorageClass to use/create
+    name: "gp3"
+    # StorageClass provisioner
+    provisioner: "ebs.csi.aws.com"
+    # StorageClass parameters
+    parameters:
+      type: "gp3"
+      encrypted: "true"
+      iops: "3000"
+      throughput: "125"
+    # Reclaim policy: Delete or Retain
+    reclaimPolicy: "Retain"
+    # Volume binding mode: WaitForFirstConsumer or Immediate
+    volumeBindingMode: "WaitForFirstConsumer"
 
 #######################
 # Volume Settings    #
@@ -135,35 +157,9 @@ volumes:
 volumeMounts:
   - name: artemis-persistent-storage
     mountPath: /var/lib/artemis/data
-  # Configuration files
+  # Mount the entire configmap at once
   - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/broker.xml
-    subPath: broker.xml
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/bootstrap.xml
-    subPath: bootstrap.xml
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/management.xml
-    subPath: management.xml
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/login.config
-    subPath: login.config
-  # Properties files
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/artemis-users.properties
-    subPath: artemis-users.properties
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/artemis-roles.properties
-    subPath: artemis-roles.properties
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/jmx.access
-    subPath: jmx-access.properties
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/jmx.password
-    subPath: jmx-password.properties
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc/broker.properties
-    subPath: broker.properties
+    mountPath: /var/lib/artemis/etc
   # Web applications
   - name: jolokia-war
     mountPath: /var/lib/artemis/web/jolokia.war

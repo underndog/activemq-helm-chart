@@ -2,14 +2,16 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-mdaas-activemq-artemis
+  name: pvc-activemq-artemis
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "active-mq.labels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
-  {{- if .Values.persistence.storageClass }}
-  storageClassName: {{ .Values.persistence.storageClass }}
+  {{- if .Values.persistence.storageClass.create }}
+  storageClassName: {{ .Values.persistence.storageClass.name }}
   {{- end }}

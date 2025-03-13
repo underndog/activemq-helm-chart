@@ -149,6 +149,7 @@ By default, the chart creates a Secret with the following credentials:
 
 To use an existing secret, set `authentication.existingSecret` to the name of your secret. The secret must contain the keys `ACTIVEMQ_USER` and `ACTIVEMQ_PASSWORD`.
 
+To disable authentication, set `authentication.enabled` to `false`.
 
 ## Persistence
 
@@ -221,4 +222,4 @@ kubectl get pods -l app=my-activemq
 
 ## License
 
-Apache ActiveMQ Artemis is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+Apache ActiveMQ Artemis is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0). 

@@ -10,10 +10,10 @@ spec:
     - name: prometheus
       port: 9404
       targetPort: 9404
-    {{- range .Values.service.ports }}
+  {{- range .Values.service.ports }}
     - name: {{ .name }}
       port: {{ .port }}
       targetPort: {{ .targetPort }}
-    {{- end }}
+  {{- end }}
   selector:
     app: {{ include "active-mq.name" . }}

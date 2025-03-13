@@ -115,10 +115,10 @@ data:
   artemis-roles.properties: |
     admin=admin
 
-  jmx-access.properties: |
+  jmx.access: |
     admin readwrite
 
-  jmx-password.properties: |
+  jmx.password: |
     admin=admin
 
   broker.properties: |
