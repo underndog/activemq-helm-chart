@@ -120,7 +120,6 @@ readinessProbe:
 # Storage Settings   #
 #######################
 persistence:
-  enabled: true
   size: 10Gi
   # StorageClass configuration
   storageClass:
