@@ -64,7 +64,7 @@ helm delete my-activemq
 | `serviceAccount.automount` | Automatically mount service account token | `true` |
 | `serviceAccount.annotations` | Annotations for service account | `{}` |
 | `serviceAccount.name` | Service account name to use | `""` |
-| `authentication.enabled` | Enable authentication | `true` |
+| `authentication.create` | If true, create a secret for authentication | `true` |
 | `authentication.existingSecret` | Name of existing secret to use | `""` |
 | `authentication.defaultUsername` | Default username if not using existing secret | `admin` |
 | `authentication.defaultPassword` | Default password if not using existing secret | `""` (random) |
@@ -101,7 +101,6 @@ helm delete my-activemq
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `persistence.enabled` | Enable persistence using PVC | `true` |
 | `persistence.size` | PVC size | `10Gi` |
 | `persistence.storageClass.create` | Create a StorageClass | `true` |
 | `persistence.storageClass.name` | StorageClass name | `gp3` |
