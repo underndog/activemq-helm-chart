@@ -64,7 +64,7 @@ helm delete my-activemq
 | `serviceAccount.automount` | Automatically mount service account token | `true` |
 | `serviceAccount.annotations` | Annotations for service account | `{}` |
 | `serviceAccount.name` | Service account name to use | `""` |
-| `authentication.enabled` | Enable authentication | `true` |
+| `authentication.create` | If true, create a secret for authentication | `true` |
 | `authentication.existingSecret` | Name of existing secret to use | `""` |
 | `authentication.defaultUsername` | Default username if not using existing secret | `admin` |
 | `authentication.defaultPassword` | Default password if not using existing secret | `""` (random) |
@@ -143,13 +143,20 @@ You can customize these files by modifying the ConfigMap template.
 
 ### Authentication
 
-By default, the chart creates a Secret with the following credentials:
-- Username: `admin` (configurable via `authentication.defaultUsername`)
-- Password: Random 16-character string (configurable via `authentication.defaultPassword`)
+Authentication is always enabled for ActiveMQ Artemis, but you have options for managing credentials:
 
-To use an existing secret, set `authentication.existingSecret` to the name of your secret. The secret must contain the keys `ACTIVEMQ_USER` and `ACTIVEMQ_PASSWORD`.
+1. **Create a new secret** (default behavior):
+   - Set `authentication.create` to `true`
+   - Username: `admin` (configurable via `authentication.defaultUsername`)
+   - Password: Random 16-character string (configurable via `authentication.defaultPassword`)
 
-To disable authentication, set `authentication.enabled` to `false`.
+2. **Use an existing secret**:
+   - Set `authentication.existingSecret` to the name of your secret
+   - The secret must contain the keys `ACTIVEMQ_USER` and `ACTIVEMQ_PASSWORD`
+
+3. **No secret creation**:
+   - Set `authentication.create` to `false` and don't provide `authentication.existingSecret`
+   - You'll need to manage authentication through other means
 
 ## Persistence
 
