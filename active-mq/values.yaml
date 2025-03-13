@@ -1,0 +1,190 @@
+# Default values for active-mq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#######################
+# Global Settings    #
+#######################
+nameOverride: ""
+fullnameOverride: ""
+replicaCount: 1
+
+#######################
+# Image Settings     #
+#######################
+image:
+  repository: apache/activemq-artemis
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 2.39.0
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+#######################
+# Security Settings  #
+#######################
+serviceAccount:
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Authentication configuration (Required for ActiveMQ)
+authentication:
+  create: true  # Set to false to not create a secret for credentials
+  existingSecret: ""  # Specify existing secret name for credentials, if not provided will create new secret
+  # Default credentials (used only if existingSecret is not provided)
+  defaultUsername: "admin"  # Default username if not using existing secret
+  defaultPassword: ""  # If empty, will generate random password
+  # Secret key names
+  secretKeys:
+    username: "ACTIVEMQ_USER"  # Key name for username in the secret
+    password: "ACTIVEMQ_PASSWORD"  # Key name for password in the secret
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+
+#######################
+# Pod Settings       #
+#######################
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9404"
+podLabels: {}
+
+# Resource limits and requests
+resources: {}
+  # limits:
+  #   cpu: "500m"
+  #   memory: "1Gi"
+  # requests:
+  #   cpu: "200m"
+  #   memory: "512Mi"
+
+# Pod scheduling settings
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+#######################
+# Service Settings   #
+#######################
+service:
+  type: ClusterIP
+  ports:
+    - name: stomp
+      port: 61613
+      targetPort: 61613
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: web-console
+      port: 8161
+      targetPort: 8161
+    - name: jmx
+      port: 1099
+      targetPort: 1099
+    - name: rmi-registry
+      port: 1098
+      targetPort: 1098
+    - name: core
+      port: 61616
+      targetPort: 61616
+
+#######################
+# Health Checks      #
+#######################
+livenessProbe:
+  httpGet:
+    path: /console/health
+    port: 8161
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /console/health
+    port: 8161
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+
+#######################
+# Storage Settings   #
+#######################
+persistence:
+  claimName: pvc-activemq-artemis
+  size: 10Gi
+  # StorageClass configuration
+  storageClass:
+    # If create is true, will create a new StorageClass
+    create: true
+    # Name of the StorageClass to use/create
+    name: "gp3"
+    # StorageClass provisioner
+    provisioner: "ebs.csi.aws.com"
+    # StorageClass parameters
+    parameters:
+      type: "gp3"
+      encrypted: "true"
+      iops: "3000"
+      throughput: "125"
+    # Reclaim policy: Delete or Retain
+    reclaimPolicy: "Retain"
+    # Volume binding mode: WaitForFirstConsumer or Immediate
+    volumeBindingMode: "WaitForFirstConsumer"
+
+#######################
+# Volume Settings    #
+#######################
+volumes:
+  - name: artemis-config-volume
+    configMap:
+      name: activemq-config
+  - name: artemis-persistent-storage
+    persistentVolumeClaim:
+      claimName: pvc-activemq-artemis
+  - name: jolokia-war
+    emptyDir: {}
+
+volumeMounts:
+  - name: artemis-persistent-storage
+    mountPath: /var/lib/artemis/data
+  # Mount the entire configmap at once
+  - name: artemis-config-volume
+    mountPath: /var/lib/artemis/etc
+  # Web applications
+  - name: jolokia-war
+    mountPath: /var/lib/artemis/web/jolokia.war
+    subPath: jolokia.war
+
+#######################
+# Init Containers    #
+#######################
+initContainers:
+  # Initialize artemis directories
+  - name: init-artemis-dirs
+    image: busybox
+    command: ['sh', '-c', 'mkdir -p /var/lib/artemis/data/journal /var/lib/artemis/data/bindings /var/lib/artemis/data/paging /var/lib/artemis/data/large-messages && chmod -R 777 /var/lib/artemis/data']
+    volumeMounts:
+    - name: artemis-persistent-storage
+      mountPath: /var/lib/artemis/data
+  # Download Jolokia WAR file
+  - name: init-jolokia
+    image: curlimages/curl:7.88.1
+    command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
+    volumeMounts:
+    - name: jolokia-war
+      mountPath: /opt/jolokia
+

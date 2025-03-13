@@ -1,0 +1,120 @@
+# templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: activemq-config
+  namespace: {{ .Release.Namespace }}
+data:
+  broker.xml: |
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+      <core xmlns="urn:activemq:core">
+        <name>artemis</name>
+        <persistence-enabled>true</persistence-enabled>
+        <journal-type>ASYNCIO</journal-type>
+        <paging-directory>data/paging</paging-directory>
+        <bindings-directory>data/bindings</bindings-directory>
+        <journal-directory>data/journal</journal-directory>
+        <large-messages-directory>data/large-messages</large-messages-directory>
+        
+        <!-- Scheduled messaging configuration -->
+        <scheduled-message-timeout>3600000</scheduled-message-timeout>
+        <scheduled-threads>5</scheduled-threads>
+        
+        <!-- Add the plugins section to enable the scheduler plugin -->
+        <plugins>
+          <plugin class-name="org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin"/>
+          <plugin class-name="org.apache.activemq.artemis.core.server.impl.ScheduledDeliveryPlugin"/>
+        </plugins>
+        
+        <!-- Message expiry configurations -->
+        <message-expiry-scan-period>30000</message-expiry-scan-period>
+        <message-expiry-thread-priority>3</message-expiry-thread-priority>
+        
+        <!-- Security settings -->
+        <security-enabled>true</security-enabled>
+        
+        <!-- Memory settings -->
+        <global-max-size>1G</global-max-size>
+        
+        <acceptors>
+          <!-- STOMP Acceptor -->
+          <acceptor name="stomp">tcp://0.0.0.0:61613?protocols=STOMP</acceptor>
+          
+          <!-- Dedicated AMQP Acceptor -->
+          <acceptor name="amqp">tcp://0.0.0.0:5672?protocols=AMQP;tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpCredits=1000;amqpLowCredits=300;amqpMinLargeMessageSize=102400;useEpoll=true</acceptor>
+          
+          <!-- Core protocols Acceptor -->
+          <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300</acceptor>
+          
+          <!-- Web Console Acceptor -->
+          <acceptor name="artemis-http">tcp://0.0.0.0:8161?protocols=HTTP</acceptor>
+        </acceptors>
+        
+        <address-settings>
+          <!-- Default for catch all -->
+          <address-setting match="#">
+            <dead-letter-address>DLQ</dead-letter-address>
+            <expiry-address>ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <max-size-bytes>-1</max-size-bytes>
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>PAGE</address-full-policy>
+            <auto-create-queues>true</auto-create-queues>
+            <auto-create-addresses>true</auto-create-addresses>
+            <auto-create-jms-queues>true</auto-create-jms-queues>
+            <auto-create-jms-topics>true</auto-create-jms-topics>
+          </address-setting>
+        </address-settings>
+        
+      </core>
+    </configuration>
+
+  bootstrap.xml: |
+    <broker xmlns="http://activemq.apache.org/schema">
+      <web bind="http://0.0.0.0:8161" path="web">
+        <app url="console" war="console.war"/>
+        <app url="metrics" war="metrics.war"/>
+        <!-- Deploy Jolokia for HTTP/JSON JMX access -->
+        <app url="jolokia" war="jolokia.war"/>
+        <!-- Enable REST API for management -->
+        <app url="api" war="artemis-plugin.war"/>
+      </web>
+      <jaas-security domain="activemq"/>
+    </broker>
+
+  management.xml: |
+    <management-context xmlns="http://activemq.apache.org/schema">
+      <connector connector-port="1099"/>
+      <connector connector-host="0.0.0.0"/>
+      <connector rmi-registry-port="1098"/>
+      <connector rmi-registry-host="0.0.0.0"/>
+      <jmx-use-broker-name>true</jmx-use-broker-name>
+      <jmx-domain>org.apache.activemq.artemis</jmx-domain>
+      <!-- Updated attribute name to "auth" -->
+      <connector auth="true"/>
+      <authorisation>
+        <!-- Allow anyone to connect to the JMX connector -->
+        <entry domain="org.apache.activemq.artemis">
+          <access method="*" roles="admin"/>
+        </entry>
+      </authorisation>
+    </management-context>
+
+  login.config: |
+    activemq {
+      org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule required
+        org.apache.activemq.jaas.properties.user="/var/lib/artemis/etc/artemis-users.properties"
+        org.apache.activemq.jaas.properties.role="/var/lib/artemis/etc/artemis-roles.properties"
+        reload=true;
+    };
+
+  broker.properties: |
+    # Additional broker properties
+    # Enable message ID and timestamp
+    messageid.enabled=true
+    timestamp.enabled=true
+    # Enable REST API
+    rest.enabled=true
+    # AMQP specific configurations
+    amqp.sasl.enabled=true

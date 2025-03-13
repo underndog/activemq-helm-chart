@@ -1,0 +1,13 @@
+{{- if .Values.persistence.storageClass.create }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.persistence.storageClass.name }}
+  labels:
+    {{- include "active-mq.labels" . | nindent 4 }}
+provisioner: {{ .Values.persistence.storageClass.provisioner }}
+parameters:
+  {{- toYaml .Values.persistence.storageClass.parameters | nindent 2 }}
+reclaimPolicy: {{ .Values.persistence.storageClass.reclaimPolicy }}
+volumeBindingMode: {{ .Values.persistence.storageClass.volumeBindingMode }}
+{{- end }}
