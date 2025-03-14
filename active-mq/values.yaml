@@ -37,7 +37,7 @@ serviceAccount:
 
 # Authentication configuration (Required for ActiveMQ)
 authentication:
-  create: false  # Set to false to not create a secret for credentials
+  create: true  # Set to false to not create a secret for credentials
   existingSecret: ""  # Specify existing secret name for credentials, if not provided will create new secret
   # Default credentials (used only if existingSecret is not provided)
   defaultUsername: "admin"  # Default username if not using existing secret
