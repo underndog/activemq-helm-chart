@@ -160,13 +160,13 @@ volumes:
 
 volumeMounts:
   - name: artemis-persistent-storage
-    mountPath: /var/lib/artemis/data
+    mountPath: /var/lib/artemis-instance/data
   # Mount the entire configmap at once
   - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc
+    mountPath: /var/lib/artemis-instance/etc
   # Web applications
   - name: jolokia-war
-    mountPath: /var/lib/artemis/web/jolokia.war
+    mountPath: /var/lib/artemis-instance/web/jolokia.war
     subPath: jolokia.war
 
 #######################
@@ -176,10 +176,10 @@ initContainers:
   # Initialize artemis directories
   - name: init-artemis-dirs
     image: busybox
-    command: ['sh', '-c', 'mkdir -p /var/lib/artemis/data/journal /var/lib/artemis/data/bindings /var/lib/artemis/data/paging /var/lib/artemis/data/large-messages && chmod -R 777 /var/lib/artemis/data']
+    command: ['sh', '-c', 'mkdir -p /var/lib/artemis-instance/data/journal /var/lib/artemis-instance/data/bindings /var/lib/artemis-instance/data/paging /var/lib/artemis-instance/data/large-messages && chmod -R 777 /var/lib/artemis-instance/data']
     volumeMounts:
     - name: artemis-persistent-storage
-      mountPath: /var/lib/artemis/data
+      mountPath: /var/lib/artemis-instance/data
   # Download Jolokia WAR file
   - name: init-jolokia
     image: curlimages/curl:7.88.1
