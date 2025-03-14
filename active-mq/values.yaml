@@ -163,7 +163,7 @@ volumeMounts:
     mountPath: /var/lib/artemis-instance/data
   # Mount the entire configmap at once
   - name: artemis-config-volume
-    mountPath: /var/lib/artemis-instance/etc
+    mountPath: /var/lib/artemis/etc
   # Web applications
   - name: jolokia-war
     mountPath: /var/lib/artemis-instance/web/jolokia.war
