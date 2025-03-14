@@ -173,13 +173,6 @@ volumeMounts:
 # Init Containers    #
 #######################
 initContainers:
-  # Initialize artemis directories
-  - name: init-artemis-dirs
-    image: busybox
-    command: ['sh', '-c', 'mkdir -p /var/lib/artemis-instance/data/journal /var/lib/artemis-instance/data/bindings /var/lib/artemis-instance/data/paging /var/lib/artemis-instance/data/large-messages && chmod -R 777 /var/lib/artemis-instance/data']
-    volumeMounts:
-    - name: artemis-persistent-storage
-      mountPath: /var/lib/artemis-instance/data
   # Download Jolokia WAR file
   - name: init-jolokia
     image: curlimages/curl:7.88.1
