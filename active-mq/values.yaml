@@ -37,11 +37,11 @@ serviceAccount:
 
 # Authentication configuration (Required for ActiveMQ)
 authentication:
-  create: true  # Set to false to not create a secret for credentials
-  existingSecret: ""  # Specify existing secret name for credentials, if not provided will create new secret
+  create: false  # Set to false to not create a secret for credentials
+  existingSecret: "mdaas-secret"  # Specify existing secret name for credentials, if not provided will create new secret
   # Default credentials (used only if existingSecret is not provided)
   defaultUsername: "admin"  # Default username if not using existing secret
-  defaultPassword: ""  # If empty, will generate random password
+  defaultPassword: "admin"  # If empty, will generate random password
   # Secret key names
   secretKeys:
     username: "ACTIVEMQ_USER"  # Key name for username in the secret
@@ -50,9 +50,9 @@ authentication:
 podSecurityContext:
   fsGroup: 1000
 
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
+# securityContext:
+#   runAsNonRoot: true
+#   runAsUser: 1000
 
 #######################
 # Pod Settings       #
@@ -63,13 +63,13 @@ podAnnotations:
 podLabels: {}
 
 # Resource limits and requests
-resources: {}
-  # limits:
-  #   cpu: "500m"
-  #   memory: "1Gi"
-  # requests:
-  #   cpu: "200m"
-  #   memory: "512Mi"
+resources: #{}
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+  requests:
+    cpu: "200m"
+    memory: "512Mi"
 
 # Pod scheduling settings
 nodeSelector: {}
@@ -149,35 +149,42 @@ persistence:
 # Volume Settings    #
 #######################
 volumes:
-  - name: artemis-config-volume
-    configMap:
-      name: activemq-config
   - name: artemis-persistent-storage
     persistentVolumeClaim:
       claimName: pvc-activemq-artemis
-  - name: jolokia-war
-    emptyDir: {}
+  # - name: jolokia-war
+  #   emptyDir: {}
 
 volumeMounts:
   - name: artemis-persistent-storage
     mountPath: /var/lib/artemis-instance/data
-  # Mount the entire configmap at once
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc
-  # Web applications
-  - name: jolokia-war
-    mountPath: /var/lib/artemis-instance/web/jolokia.war
-    subPath: jolokia.war
+  # # Web applications
+  # - name: jolokia-war
+  #   mountPath: /var/lib/artemis-instance/web/jolokia.war
+  #   subPath: jolokia.war
 
 #######################
 # Init Containers    #
 #######################
-initContainers:
+# initContainers:
+# # Test
+#   - name: init-artemis-dirs
+#     image: busybox
+#     command: ['sh', '-c', 'chmod -R 777 /var/lib/artemis/data']
+#     volumeMounts:
+#     - name: artemis-persistent-storage
+#       mountPath: /var/lib/artemis/data
+  # Initialize artemis directories
+  # - name: init-artemis-dirs
+  #   image: busybox
+  #   command: ['sh', '-c', 'mkdir -p /var/lib/artemis/data/journal /var/lib/artemis/data/bindings /var/lib/artemis/data/paging /var/lib/artemis/data/large-messages && chmod -R 777 /var/lib/artemis/data']
+  #   volumeMounts:
+  #   - name: artemis-persistent-storage
+  #     mountPath: /var/lib/artemis/data
   # Download Jolokia WAR file
-  - name: init-jolokia
-    image: curlimages/curl:7.88.1
-    command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
-    volumeMounts:
-    - name: jolokia-war
-      mountPath: /opt/jolokia
-
+  # - name: init-jolokia
+  #   image: curlimages/curl:7.88.1
+  #   command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
+  #   volumeMounts:
+  #   - name: jolokia-war
+  #     mountPath: /opt/jolokia
