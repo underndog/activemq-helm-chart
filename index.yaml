@@ -3,17 +3,17 @@ entries:
   active-mq:
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-03-15T15:46:21.877291927+07:00"
+    created: "2025-03-15T16:07:13.620942745+07:00"
     description: A Helm chart for Kubernetes
-    digest: 22890d8ffe5b53690a450b311480b5eae5080320057d3bb7dbd433dcf445f807
+    digest: 6113f16a2bb5aa6c4baa18af7cb04f55fb1ec23807319992a5f310e76bb61cad
     name: active-mq
     type: application
     urls:
-    - https://underndog.github.io/activemq-helm-chart/active-mq-1.0.1.tgz
-    version: 1.0.1
+    - https://underndog.github.io/activemq-helm-chart/active-mq-1.1.0.tgz
+    version: 1.1.0
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-03-15T15:46:21.87688777+07:00"
+    created: "2025-03-15T16:07:13.620575928+07:00"
     description: A Helm chart for Kubernetes
     digest: 2df4b20cc616ca7478e9c9c963d86ab7ebd8efc7e4bac346632f2d8cabcff22d
     name: active-mq
@@ -21,4 +21,4 @@ entries:
     urls:
     - https://underndog.github.io/activemq-helm-chart/active-mq-1.0.0.tgz
     version: 1.0.0
-generated: "2025-03-15T15:46:21.874264815+07:00"
+generated: "2025-03-15T16:07:13.619761813+07:00"
