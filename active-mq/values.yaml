@@ -48,7 +48,9 @@ authentication:
     password: "ACTIVEMQ_PASSWORD"  # Key name for password in the secret
 
 podSecurityContext:
-  fsGroup: 1000
+  # Set fsGroup to 1001 which corresponds to the 'artemis' group in the container
+  # This ensures mounted volumes have correct artemis group permissions
+  fsGroup: 1001
 
 # securityContext:
 #   runAsNonRoot: true

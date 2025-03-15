@@ -70,7 +70,7 @@ helm delete my-activemq
 | `authentication.defaultPassword` | Default password if not using existing secret | `""` (random) |
 | `authentication.secretKeys.username` | Key name for username in the secret | `ACTIVEMQ_USER` |
 | `authentication.secretKeys.password` | Key name for password in the secret | `ACTIVEMQ_PASSWORD` |
-| `podSecurityContext.fsGroup` | Group ID for the pod | `1000` |
+| `podSecurityContext.fsGroup` | Group ID (1001) corresponding to 'artemis' group in container. Required for volume permissions. | `1001` |
 
 ### Pod Settings
 
