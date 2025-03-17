@@ -48,11 +48,13 @@ authentication:
     password: "ACTIVEMQ_PASSWORD"  # Key name for password in the secret
 
 podSecurityContext:
-  fsGroup: 1000
+  # Set fsGroup to 1001 which corresponds to the 'artemis' group in the container
+  # This ensures mounted volumes have correct artemis group permissions
+  fsGroup: 1001
 
-securityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
+# securityContext:
+#   runAsNonRoot: true
+#   runAsUser: 1000
 
 #######################
 # Pod Settings       #
@@ -149,42 +151,22 @@ persistence:
 # Volume Settings    #
 #######################
 volumes:
-  - name: artemis-config-volume
-    configMap:
-      name: activemq-config
   - name: artemis-persistent-storage
     persistentVolumeClaim:
       claimName: pvc-activemq-artemis
-  - name: jolokia-war
-    emptyDir: {}
 
 volumeMounts:
   - name: artemis-persistent-storage
-    mountPath: /var/lib/artemis/data
-  # Mount the entire configmap at once
-  - name: artemis-config-volume
-    mountPath: /var/lib/artemis/etc
-  # Web applications
-  - name: jolokia-war
-    mountPath: /var/lib/artemis/web/jolokia.war
-    subPath: jolokia.war
+    mountPath: /var/lib/artemis-instance/data
 
 #######################
 # Init Containers    #
 #######################
-initContainers:
-  # Initialize artemis directories
-  - name: init-artemis-dirs
-    image: busybox
-    command: ['sh', '-c', 'mkdir -p /var/lib/artemis/data/journal /var/lib/artemis/data/bindings /var/lib/artemis/data/paging /var/lib/artemis/data/large-messages && chmod -R 777 /var/lib/artemis/data']
-    volumeMounts:
-    - name: artemis-persistent-storage
-      mountPath: /var/lib/artemis/data
+# initContainers:
   # Download Jolokia WAR file
-  - name: init-jolokia
-    image: curlimages/curl:7.88.1
-    command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
-    volumeMounts:
-    - name: jolokia-war
-      mountPath: /opt/jolokia
-
+  # - name: init-jolokia
+  #   image: curlimages/curl:7.88.1
+  #   command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
+  #   volumeMounts:
+  #   - name: jolokia-war
+  #     mountPath: /opt/jolokia
