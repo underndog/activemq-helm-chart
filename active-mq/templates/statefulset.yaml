@@ -77,11 +77,19 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }} 
-          {{- with .Values.volumeMounts }}
+          
           volumeMounts:
+            - mountPath: /var/lib/artemis-instance/etc-override/broker.xml
+              name: artemis-config-volume
+              subPath: broker.xml
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+        - configMap:
+            defaultMode: 420
+            name: active-mq-config
+          name: artemis-config-volume
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

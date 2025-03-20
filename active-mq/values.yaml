@@ -161,7 +161,7 @@ volumeMounts:
 
 config:
   brokerXml:
-    global-max-size: 500Mb
+    global-max-size: 100Mb
 
 envVars:
   JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
