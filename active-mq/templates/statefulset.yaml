@@ -73,13 +73,23 @@ spec:
                 secretKeyRef:
                   name: {{ if .Values.authentication.existingSecret }}{{ .Values.authentication.existingSecret }}{{ else }}{{ include "active-mq.fullname" . }}-credentials{{ end }}
                   key: {{ default "ACTIVEMQ_PASSWORD" .Values.authentication.secretKeys.password }}
-            - name: JAVA_OPTS
-              value: "-Djava.security.auth.login.config=/var/lib/artemis/etc/login.config -Dcom.sun.management.jmxremote=true -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.rmi.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=true -Djava.rmi.server.hostname=0.0.0.0 -Dcom.sun.management.jmxremote.access.file=/var/lib/artemis/etc/jmx.access -Dcom.sun.management.jmxremote.password.file=/var/lib/artemis/etc/jmx.password"
-          {{- with .Values.volumeMounts }}
+            {{- range $key, $value := .Values.envVars }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }} 
+          
           volumeMounts:
+            - mountPath: /var/lib/artemis-instance/etc-override/broker.xml
+              name: artemis-config-volume
+              subPath: broker.xml
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+        - configMap:
+            defaultMode: 420
+            name: active-mq-config
+          name: artemis-config-volume
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
