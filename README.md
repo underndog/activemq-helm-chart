@@ -1,4 +1,4 @@
-## ActiveMQ Artemis Helm Chart
+# ActiveMQ Artemis Helm Chart
 
 This Helm chart deploys Apache ActiveMQ Artemis on Kubernetes, providing a reliable and scalable message broker.
 
