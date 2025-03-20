@@ -159,14 +159,9 @@ volumeMounts:
   - name: artemis-persistent-storage
     mountPath: /var/lib/artemis-instance/data
 
-#######################
-# Init Containers    #
-#######################
-# initContainers:
-  # Download Jolokia WAR file
-  # - name: init-jolokia
-  #   image: curlimages/curl:7.88.1
-  #   command: ['sh', '-c', 'curl -L https://repo1.maven.org/maven2/org/jolokia/jolokia-war/1.7.2/jolokia-war-1.7.2.war -o /opt/jolokia/jolokia.war']
-  #   volumeMounts:
-  #   - name: jolokia-war
-  #     mountPath: /opt/jolokia
+config:
+  brokerXml:
+    global-max-size: 500Mb
+
+envVars:
+  JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
