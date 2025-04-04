@@ -17,10 +17,15 @@ spec:
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.podAnnotations }}
       annotations:
+        {{- if .Values.monitoring.enabled }}
+        prometheus.io/port: "9404"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        {{- end }}
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
       {{- with .Values.podSecurityContext }}
       securityContext:
@@ -38,10 +43,42 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.initContainers }}
       initContainers:
+        {{- if .Values.monitoring.jmx.enabled }}
+        - name: copy-and-fix-permissions
+          image: quay.io/nimtechnology/busybox:1.32.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - '-c'
+          args:
+            - >-
+              cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password
+              && \
+              cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access && \
+              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml && \
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password && \
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access && \
+              # Make artemis user the owner (ID 1001)
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password && \
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access && \
+              # List the files to verify permissions
+              ls -la /var/lib/artemis-instance/jmx/
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - mountPath: /config-readonly
+              name: jmx-credentials
+              readOnly: true
+            - mountPath: /config-files
+              name: jmx-config-files
+              readOnly: true
+            - mountPath: /var/lib/artemis-instance/jmx/
+              name: jmx-config-writable
+        {{- end }}
+        {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -54,6 +91,11 @@ spec:
             {{- range .Values.service.ports }}
             - name: {{ .name }}
               containerPort: {{ .targetPort }}
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.monitoring.enabled }}
+            - containerPort: 9404
+              name: prometheus
               protocol: TCP
             {{- end }}
           livenessProbe:
@@ -73,23 +115,78 @@ spec:
                 secretKeyRef:
                   name: {{ if .Values.authentication.existingSecret }}{{ .Values.authentication.existingSecret }}{{ else }}{{ include "active-mq.fullname" . }}-credentials{{ end }}
                   key: {{ default "ACTIVEMQ_PASSWORD" .Values.authentication.secretKeys.password }}
+            - name: JDK_JAVA_OPTIONS
+              value: >-
+                {{ .Values.envVars.JDK_JAVA_OPTIONS | default "-Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log" }}
+                {{- if .Values.monitoring.jmx.enabled }}
+                -Dcom.sun.management.jmxremote.port=1098
+                -Dcom.sun.management.jmxremote.rmi.port=1098
+                -Dcom.sun.management.jmxremote.authenticate=true
+                -Dcom.sun.management.jmxremote.ssl=false
+                -Djava.rmi.server.hostname=127.0.0.1
+                -Dcom.sun.management.jmxremote.access.file=/var/lib/artemis-instance/jmx/jmxremote.access
+                -Dcom.sun.management.jmxremote.password.file=/var/lib/artemis-instance/jmx/jmxremote.password
+                {{- end }}
             {{- range $key, $value := .Values.envVars }}
+            {{- if ne $key "JDK_JAVA_OPTIONS" }}
             - name: {{ $key }}
               value: {{ $value | quote }}
+            {{- end }}
             {{- end }} 
           
           volumeMounts:
             - mountPath: /var/lib/artemis-instance/etc-override/broker.xml
               name: artemis-config-volume
               subPath: broker.xml
+            {{- if .Values.monitoring.jmx.enabled }}
+            - mountPath: /var/lib/artemis-instance/jmx/
+              name: jmx-config-writable
+            {{- end }}
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
+        
+        {{- if .Values.monitoring.jmx.enabled }}
+        - name: jmx-exporter
+          image: {{ .Values.monitoring.jmx.exporter.image | default "bitnami/jmx-exporter:1.1.0" }}
+          imagePullPolicy: {{ .Values.monitoring.jmx.exporter.pullPolicy | default "IfNotPresent" }}
+          command:
+            - /bin/sh
+            - '-c'
+          args:
+            - >-
+              exec java -jar
+              /opt/bitnami/jmx-exporter/jmx_prometheus_standalone.jar 9404
+              /var/lib/artemis-instance/jmx/config.yml
+          ports:
+            - containerPort: 9404
+              name: metrics
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/artemis-instance/jmx/
+              name: jmx-config-writable
+        {{- end }}
+        
       volumes:
         - configMap:
             defaultMode: 420
             name: active-mq-config
           name: artemis-config-volume
+        {{- if .Values.monitoring.jmx.enabled }}
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: config.yml
+                path: config.yml
+            name: jmx-exporter-config
+          name: jmx-config-files
+        - secret:
+            secretName: jmx-credentials
+            defaultMode: 0600
+          name: jmx-credentials
+        - emptyDir: {}
+          name: jmx-config-writable
+        {{- end }}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -60,3 +60,17 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+JMX username with default
+*/}}
+{{- define "active-mq.jmxUsername" -}}
+{{- .Values.monitoring.jmx.username | default "admin" -}}
+{{- end -}}
+
+{{/*
+JMX password with default or random generation
+*/}}
+{{- define "active-mq.jmxPassword" -}}
+{{- .Values.monitoring.jmx.password | default (randAlphaNum 16) -}}
+{{- end -}}

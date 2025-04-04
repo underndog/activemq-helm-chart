@@ -1,0 +1,42 @@
+{{- if .Values.monitoring.jmx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jmx-exporter-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yml: |
+    # JMX Connection Settings
+    hostPort: {{ .Values.monitoring.jmx.exporter.hostPort | quote }}
+    username: {{ .Values.monitoring.jmx.username | default "admin" | quote }}
+    password: {{ .Values.monitoring.jmx.password | default "admin" | quote }}
+    
+    # Output Configuration
+    lowercaseOutputName: true
+    lowercaseOutputLabelNames: true
+    
+    # Metric Collection Rules
+    rules:
+      # Broker-level metrics
+      - pattern: "^org.apache.activemq.artemis<broker=\"([^\"]*)\"><>([^:]*):\\s(.*)"
+        attrNameSnakeCase: true
+        name: artemis_$2
+        type: GAUGE
+      
+      # Address-level metrics
+      - pattern: "^org.apache.activemq.artemis<broker=\"([^\"]*)\",\\s*component=addresses,\\s*address=\"([^\"]*)\"><>([^:]*):\\s(.*)"
+        attrNameSnakeCase: true
+        name: artemis_$3
+        type: GAUGE
+        labels:
+            address: $2
+      
+      # Queue/Topic metrics
+      - pattern: "^org.apache.activemq.artemis<broker=\"([^\"]*)\",\\s*component=addresses,\\s*address=\"([^\"]*)\",\\s*subcomponent=(queue|topic)s,\\s*routing-type=\"([^\"]*)\",\\s*(queue|topic)=\"([^\"]*)\"><>([^: ]*):\\s(.*)"
+        attrNameSnakeCase: true
+        name: artemis_$7
+        type: GAUGE
+        labels:
+            address: $2
+            "$5": $6
+{{- end }}

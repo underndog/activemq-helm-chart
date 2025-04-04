@@ -165,3 +165,17 @@ config:
 
 envVars:
   JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
+
+monitoring:
+  enabled: false
+  # JMX monitoring configuration
+  jmx:
+    enabled: true
+    username: "admin"
+    password: "admin"
+    exporter:
+      image: "bitnami/jmx-exporter:1.1.0"
+      pullPolicy: IfNotPresent
+      hostPort: "127.0.0.1:1098"
+      lowercaseOutputName: true
+      lowercaseOutputLabelNames: true
