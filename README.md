@@ -129,6 +129,45 @@ envVars:
   JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
 ```
 
+### Monitoring
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `monitoring.enabled` | Enable monitoring components | `false` |
+| `monitoring.jmx.enabled` | Enable JMX monitoring | `true` |
+| `monitoring.jmx.username` | JMX username | `admin` |
+| `monitoring.jmx.password` | JMX password (auto-generated if empty) | `admin` |
+| `monitoring.jmx.exporter.image` | JMX exporter image | `bitnami/jmx-exporter:1.1.0` |
+| `monitoring.jmx.exporter.pullPolicy` | JMX exporter image pull policy | `IfNotPresent` |
+| `monitoring.jmx.exporter.hostPort` | JMX host and port | `127.0.0.1:1098` |
+| `monitoring.jmx.exporter.lowercaseOutputName` | Convert output metric names to lowercase | `true` |
+| `monitoring.jmx.exporter.lowercaseOutputLabelNames` | Convert output label names to lowercase | `true` |
+
+### JMX Monitoring
+
+The chart provides JMX monitoring capabilities for ActiveMQ Artemis. JMX monitoring allows you to:
+
+- Monitor broker performance metrics
+- Track queue and topic statistics
+- Observe message flow and consumption rates
+
+JMX authentication is configured automatically using:
+- A username (default: `admin`)
+- A secure password (auto-generated if not specified)
+
+To enable JMX monitoring:
+
+```yaml
+monitoring:
+  enabled: true
+  jmx:
+    enabled: true
+    username: "myadmin"  # Optional: custom username
+    password: "mypassword"  # Optional: custom password
+```
+
+JMX is exposed on port 1099, and the RMI registry on port 1098.
+
 ## Configuration
 
 ### ActiveMQ Configuration
@@ -192,9 +231,45 @@ kubectl port-forward svc/my-activemq 8161:8161
 
 Then open http://localhost:8161/console in your browser.
 
+### Prometheus Metrics
+
+The JMX exporter exposes ActiveMQ metrics in Prometheus format on port 9404. Access these metrics with:
+
+```plaintext
+kubectl port-forward svc/my-activemq 9404:9404
+```
+
+Then open http://localhost:9404/metrics in your browser or configure your Prometheus instance to scrape this endpoint.
+
 ## Metrics and Monitoring
 
-The chart includes Prometheus annotations for scraping metrics. The metrics are exposed on port 9404.
+The chart includes Prometheus annotations for scraping metrics. The metrics are exposed on port 9404 by the JMX exporter sidecar container.
+
+When `monitoring.enabled` is set to `true`, the following annotations are added to the pod:
+```yaml
+prometheus.io/scrape: "true"
+prometheus.io/port: "9404"
+prometheus.io/path: "/metrics"
+```
+
+This enables automatic discovery by Prometheus if your cluster has service discovery configured.
+
+### Available Metrics
+
+The JMX exporter provides various metrics, including:
+
+- Queue depths
+- Message counts (enqueued, dequeued)
+- Consumer counts
+- Memory usage
+- Connection statistics
+- Broker status
+
+### JMX Configuration
+
+The JMX configuration is stored in a ConfigMap (`jmx-exporter-config`) and mounted to both the ActiveMQ container and JMX exporter container. The JMX exporter uses this configuration to connect to the JMX port and expose metrics.
+
+For authentication, a Secret (`jmx-credentials`) is created with `jmxremote.access` and `jmxremote.password` files. These are mounted to the ActiveMQ container with appropriate permissions.
 
 ## Chart Structure
 
@@ -211,7 +286,9 @@ active-mq/
 │   ├── secret.yaml            # Authentication secret
 │   ├── service.yaml           # Service definition
 │   ├── serviceaccount.yaml    # Service account
-│   └── statefulset.yaml       # Main ActiveMQ deployment
+│   ├── statefulset.yaml       # Main ActiveMQ deployment
+│   ├── jmx-credentials-secret.yaml # JMX credentials
+│   └── jmx-exporter-config.yaml    # JMX exporter configuration
 └── charts/                    # Chart dependencies (if any)
 ```
 
