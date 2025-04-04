@@ -8,12 +8,12 @@ data:
   config.yml: |
     # JMX Connection Settings
     hostPort: {{ .Values.monitoring.jmx.exporter.hostPort | quote }}
-    username: {{ .Values.monitoring.jmx.username | default "admin" | quote }}
-    password: {{ .Values.monitoring.jmx.password | default "admin" | quote }}
+    username: {{ include "active-mq.jmxUsername" . | quote }}
+    password: {{ include "active-mq.jmxPassword" . | quote }}
     
     # Output Configuration
-    lowercaseOutputName: true
-    lowercaseOutputLabelNames: true
+    lowercaseOutputName: {{ .Values.monitoring.jmx.exporter.lowercaseOutputName }}
+    lowercaseOutputLabelNames: {{ .Values.monitoring.jmx.exporter.lowercaseOutputLabelNames }}
     
     # Metric Collection Rules
     rules:

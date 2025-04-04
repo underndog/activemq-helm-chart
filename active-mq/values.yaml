@@ -166,6 +166,10 @@ config:
 envVars:
   JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
 
+
+#######################
+# Monitoring Settings #
+#######################
 monitoring:
   enabled: false
   # JMX monitoring configuration
