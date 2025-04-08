@@ -135,8 +135,6 @@ envVars:
 | --- | --- | --- |
 | `monitoring.enabled` | Enable monitoring components | `true` |
 | `monitoring.jmx.enabled` | Enable JMX monitoring | `true` |
-| `monitoring.jmx.username` | JMX username | `admin` |
-| `monitoring.jmx.password` | JMX password (auto-generated if empty) | `admin` |
 | `monitoring.jmx.exporter.image` | JMX exporter image | `bitnami/jmx-exporter:1.1.0` |
 | `monitoring.jmx.exporter.pullPolicy` | JMX exporter image pull policy | `IfNotPresent` |
 | `monitoring.jmx.exporter.hostPort` | JMX host and port | `127.0.0.1:1098` |

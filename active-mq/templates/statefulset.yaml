@@ -53,23 +53,27 @@ spec:
             - '-c'
           args:
             - >-
-              cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password
-              && \
-              cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access && \
-              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml && \
-              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password && \
-              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access && \
+              # Make sure JMX directory exists
+              mkdir -p /var/lib/artemis-instance/jmx/ &&
+              # Create empty files first
+              touch /var/lib/artemis-instance/jmx/jmxremote.access &&
+              touch /var/lib/artemis-instance/jmx/jmxremote.password &&
+              # Generate JMX credential files from environment variables
+              echo "${ARTEMIS_USER} readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access &&
+              echo "${ARTEMIS_USER} ${ARTEMIS_PASSWORD}" > /var/lib/artemis-instance/jmx/jmxremote.password &&
+              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml &&
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password &&
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access &&
               # Make artemis user the owner (ID 1001)
-              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password && \
-              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access && \
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password &&
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access &&
               # List the files to verify permissions
               ls -la /var/lib/artemis-instance/jmx/
           securityContext:
             runAsUser: 0
+          env:
+            {{- include "active-mq.artemisEnvVars" . | nindent 12 }}
           volumeMounts:
-            - mountPath: /config-readonly
-              name: jmx-credentials
-              readOnly: true
             - mountPath: /config-files
               name: jmx-config-files
               readOnly: true
@@ -163,6 +167,8 @@ spec:
               exec java -jar
               /opt/bitnami/jmx-exporter/jmx_prometheus_standalone.jar 9404
               /var/lib/artemis-instance/jmx/config.yml
+          env:
+            {{- include "active-mq.artemisEnvVars" . | nindent 12 }}
           ports:
             - containerPort: 9404
               name: metrics
@@ -185,10 +191,6 @@ spec:
                 path: config.yml
             name: jmx-exporter-config
           name: jmx-config-files
-        - secret:
-            secretName: jmx-credentials
-            defaultMode: 0600
-          name: jmx-credentials
         - emptyDir: {}
           name: jmx-config-writable
         {{- end }}
