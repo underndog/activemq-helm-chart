@@ -164,8 +164,6 @@ monitoring:
     password: "mypassword"  # Optional: custom password
 ```
 
-JMX is exposed on port 1099, and the RMI registry on port 1098.
-
 ## Configuration
 
 ### ActiveMQ Configuration
