@@ -62,6 +62,8 @@ spec:
               echo "${ARTEMIS_USER} ${ARTEMIS_PASSWORD}" > /var/lib/artemis-instance/jmx/jmxremote.password &&
 
               cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml &&
+              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/config.yml &&
+              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/config.yml &&
 
               chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password &&
               chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access &&
