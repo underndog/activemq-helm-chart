@@ -59,9 +59,7 @@ podSecurityContext:
 #######################
 # Pod Settings       #
 #######################
-podAnnotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "9404"
+podAnnotations: {}
 podLabels: {}
 
 # Resource limits and requests
@@ -93,12 +91,6 @@ service:
     - name: web-console
       port: 8161
       targetPort: 8161
-    - name: jmx
-      port: 1099
-      targetPort: 1099
-    - name: rmi-registry
-      port: 1098
-      targetPort: 1098
     - name: core
       port: 61616
       targetPort: 61616

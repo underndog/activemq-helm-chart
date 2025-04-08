@@ -98,6 +98,11 @@ spec:
               name: prometheus
               protocol: TCP
             {{- end }}
+            {{- if .Values.monitoring.jmx.enabled }}
+            - containerPort: 1098
+              name: rmi-registry
+              protocol: TCP
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -162,6 +167,9 @@ spec:
             - containerPort: 9404
               name: metrics
               protocol: TCP
+          env:
+            - name: EXPORTER_JMX_URL
+              value: service:jmx:rmi:///jndi/rmi://127.0.0.1:{{ .Values.monitoring.jmx.port | default 1098 }}/jmxrmi
           volumeMounts:
             - mountPath: /var/lib/artemis-instance/jmx/
               name: jmx-config-writable
