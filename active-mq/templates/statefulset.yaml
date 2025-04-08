@@ -168,8 +168,6 @@ spec:
               exec java -jar
               /opt/bitnami/jmx-exporter/jmx_prometheus_standalone.jar 9404
               /var/lib/artemis-instance/jmx/config.yml
-          env:
-            {{- include "active-mq.artemisEnvVars" . | nindent 12 }}
           ports:
             - containerPort: 9404
               name: metrics
