@@ -133,7 +133,7 @@ envVars:
 
 | Parameter | Description | Default |
 | --- | --- | --- |
-| `monitoring.enabled` | Enable monitoring components | `false` |
+| `monitoring.enabled` | Enable monitoring components | `true` |
 | `monitoring.jmx.enabled` | Enable JMX monitoring | `true` |
 | `monitoring.jmx.username` | JMX username | `admin` |
 | `monitoring.jmx.password` | JMX password (auto-generated if empty) | `admin` |
