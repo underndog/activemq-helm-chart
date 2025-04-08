@@ -155,7 +155,7 @@ JMX authentication uses dedicated credentials that can be configured via values:
 - Username: Set with `monitoring.jmx.username` (default: env `$ARTEMIS_USER`)
 - Password: Set with `monitoring.jmx.password` (default: env `$ARTEMIS_PASSWORD`)
 
-To enable JMX monitoring:
+To enable JMX monitoring with customized username and password:
 
 ```yaml
 monitoring:
