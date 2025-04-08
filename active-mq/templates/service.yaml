@@ -7,9 +7,16 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
+      {{- if .Values.monitoring.enabled }}
     - name: prometheus
       port: 9404
       targetPort: 9404
+      {{- end }}
+    {{- if .Values.monitoring.jmx.enabled }}
+    - name: rmi-registry
+      port: 1098
+      targetPort: 1098
+    {{- end }}
   {{- range .Values.service.ports }}
     - name: {{ .name }}
       port: {{ .port }}

@@ -60,3 +60,33 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+JMX username with default
+*/}}
+{{- define "active-mq.jmxUsername" -}}
+{{- default "admin" .Values.authentication.defaultUsername -}}
+{{- end -}}
+
+{{/*
+JMX password with default or random generation
+*/}}
+{{- define "active-mq.jmxPassword" -}}
+{{- coalesce .Values.authentication.defaultPassword (randAlphaNum 16) -}}
+{{- end -}}
+
+{{/*
+Common Artemis environment variables
+*/}}
+{{- define "active-mq.artemisEnvVars" -}}
+- name: ARTEMIS_USER
+  valueFrom:
+    secretKeyRef:
+      name: {{ if .Values.authentication.existingSecret }}{{ .Values.authentication.existingSecret }}{{ else }}{{ include "active-mq.fullname" . }}-credentials{{ end }}
+      key: {{ default "ACTIVEMQ_USER" .Values.authentication.secretKeys.username }}
+- name: ARTEMIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ if .Values.authentication.existingSecret }}{{ .Values.authentication.existingSecret }}{{ else }}{{ include "active-mq.fullname" . }}-credentials{{ end }}
+      key: {{ default "ACTIVEMQ_PASSWORD" .Values.authentication.secretKeys.password }}
+{{- end -}}
