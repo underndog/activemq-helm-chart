@@ -178,7 +178,6 @@ The chart exposes the following ports:
 *   61613: STOMP
 *   5672: AMQP
 *   8161: Web Console
-*   1099: JMX
 *   1098: RMI Registry
 *   61616: Core protocols (CORE, AMQP, STOMP, HORNETQ, MQTT, OPENWIRE)
 
