@@ -149,9 +149,10 @@ The chart provides JMX monitoring capabilities for ActiveMQ Artemis. JMX monitor
 - Track queue and topic statistics
 - Observe message flow and consumption rates
 
-JMX authentication is configured automatically using:
-- A username (default: `admin`)
-- A secure password (auto-generated if not specified)
+JMX authentication uses the same credentials as the main ActiveMQ broker for simplicity and consistency. This ensures that:
+1. The JMX credentials match your ActiveMQ credentials
+2. Any changes to ActiveMQ credentials automatically apply to JMX
+3. Existing secret usage is supported seamlessly
 
 To enable JMX monitoring:
 
@@ -160,8 +161,6 @@ monitoring:
   enabled: true
   jmx:
     enabled: true
-    username: "myadmin"  # Optional: custom username
-    password: "mypassword"  # Optional: custom password
 ```
 
 ## Configuration
@@ -264,7 +263,7 @@ The JMX exporter provides various metrics, including:
 
 The JMX configuration is stored in a ConfigMap (`jmx-exporter-config`) and mounted to both the ActiveMQ container and JMX exporter container. The JMX exporter uses this configuration to connect to the JMX port and expose metrics.
 
-For authentication, a Secret (`jmx-credentials`) is created with `jmxremote.access` and `jmxremote.password` files. These are mounted to the ActiveMQ container with appropriate permissions.
+An init container creates the necessary JMX credentials files using the same authentication credentials as the main ActiveMQ broker. This ensures consistent authentication between broker and JMX access.
 
 ## Chart Structure
 
@@ -282,7 +281,6 @@ active-mq/
 │   ├── service.yaml           # Service definition
 │   ├── serviceaccount.yaml    # Service account
 │   ├── statefulset.yaml       # Main ActiveMQ deployment
-│   ├── jmx-credentials-secret.yaml # JMX credentials
 │   └── jmx-exporter-config.yaml    # JMX exporter configuration
 └── charts/                    # Chart dependencies (if any)
 ```
