@@ -135,6 +135,8 @@ envVars:
 | --- | --- | --- |
 | `monitoring.enabled` | Enable monitoring components | `true` |
 | `monitoring.jmx.enabled` | Enable JMX monitoring | `true` |
+| `monitoring.jmx.username` | JMX username | env `$ARTEMIS_USER` |
+| `monitoring.jmx.password` | JMX password | env `$ARTEMIS_PASSWORD` |
 | `monitoring.jmx.exporter.image` | JMX exporter image | `bitnami/jmx-exporter:1.1.0` |
 | `monitoring.jmx.exporter.pullPolicy` | JMX exporter image pull policy | `IfNotPresent` |
 | `monitoring.jmx.exporter.hostPort` | JMX host and port | `127.0.0.1:1098` |
@@ -235,10 +237,9 @@ The chart provides JMX monitoring capabilities for ActiveMQ Artemis using a JMX 
 - Track queue and topic statistics
 - Observe message flow and consumption rates
 
-JMX authentication uses the same credentials as the main ActiveMQ broker for simplicity and consistency. This ensures that:
-1. The JMX credentials match your ActiveMQ credentials
-2. Any changes to ActiveMQ credentials automatically apply to JMX
-3. Existing secret usage is supported seamlessly
+JMX authentication uses dedicated credentials that can be configured via values:
+- Username: Set with `monitoring.jmx.username` (default: `admin`)
+- Password: Set with `monitoring.jmx.password` (default: `admin`)
 
 To access Prometheus metrics from outside the cluster:
 

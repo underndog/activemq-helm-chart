@@ -8,8 +8,8 @@ data:
   config.yml: |
     # JMX Connection Settings
     hostPort: {{ .Values.monitoring.jmx.exporter.hostPort | quote }}
-    username: ${env:ARTEMIS_USER}
-    password: ${env:ARTEMIS_PASSWORD}
+    username: {{ .Values.monitoring.jmx.username | quote }}
+    password: {{ .Values.monitoring.jmx.password | quote }}
     
     # Output Configuration
     lowercaseOutputName: {{ .Values.monitoring.jmx.exporter.lowercaseOutputName }}

@@ -65,14 +65,14 @@ Create the name of the service account to use
 JMX username with default
 */}}
 {{- define "active-mq.jmxUsername" -}}
-{{- default "admin" .Values.authentication.defaultUsername -}}
+{{- default "admin" .Values.monitoring.jmx.username -}}
 {{- end -}}
 
 {{/*
 JMX password with default or random generation
 */}}
 {{- define "active-mq.jmxPassword" -}}
-{{- coalesce .Values.authentication.defaultPassword (randAlphaNum 16) -}}
+{{- default "admin" .Values.monitoring.jmx.password -}}
 {{- end -}}
 
 {{/*
