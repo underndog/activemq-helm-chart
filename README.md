@@ -140,8 +140,8 @@ envVars:
 | `monitoring.jmx.exporter.hostPort` | JMX host and port | `127.0.0.1:1098` |
 | `monitoring.jmx.exporter.lowercaseOutputName` | Convert output metric names to lowercase | `true` |
 | `monitoring.jmx.exporter.lowercaseOutputLabelNames` | Convert output label names to lowercase | `true` |
-| `monitoring.jmx.username` | JMX username | `admin` |
-| `monitoring.jmx.password` | JMX password | `admin` |
+| `monitoring.jmx.username` | JMX username | env `$ARTEMIS_USER` |
+| `monitoring.jmx.password` | JMX password | env `$ARTEMIS_PASSWORD` |
 
 ### JMX Monitoring
 
@@ -152,8 +152,8 @@ The chart provides JMX monitoring capabilities for ActiveMQ Artemis. JMX monitor
 - Observe message flow and consumption rates
 
 JMX authentication uses dedicated credentials that can be configured via values:
-- Username: Set with `monitoring.jmx.username` (default: `admin`)
-- Password: Set with `monitoring.jmx.password` (default: `admin`)
+- Username: Set with `monitoring.jmx.username` (default: env `$ARTEMIS_USER`)
+- Password: Set with `monitoring.jmx.password` (default: env `$ARTEMIS_PASSWORD`)
 
 To enable JMX monitoring:
 
@@ -162,7 +162,6 @@ monitoring:
   enabled: true
   jmx:
     enabled: true
-    port: 1098     # Optional: custom JMX port
     username: "admin"  # Optional: custom JMX username
     password: "admin"  # Optional: custom JMX password
 ```
