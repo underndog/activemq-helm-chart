@@ -163,7 +163,7 @@ envVars:
 # Monitoring Settings #
 #######################
 monitoring:
-  enabled: false
+  enabled: true
   # JMX monitoring configuration
   jmx:
     enabled: true

@@ -167,9 +167,6 @@ spec:
             - containerPort: 9404
               name: metrics
               protocol: TCP
-          env:
-            - name: EXPORTER_JMX_URL
-              value: service:jmx:rmi:///jndi/rmi://127.0.0.1:{{ .Values.monitoring.jmx.port | default 1098 }}/jmxrmi
           volumeMounts:
             - mountPath: /var/lib/artemis-instance/jmx/
               name: jmx-config-writable
