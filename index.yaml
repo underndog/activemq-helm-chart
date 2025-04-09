@@ -3,7 +3,27 @@ entries:
   active-mq:
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.533911474+07:00"
+    created: "2025-04-09T14:07:07.893814781+07:00"
+    description: A Helm chart for Kubernetes
+    digest: 18ab1050d4d4341d490a7e2a6a14c60e6a4a1c5e67611be1e44e644358296d32
+    home: https://nimtechnology.com/
+    icon: https://raw.githubusercontent.com/underndog/activemq-helm-chart/master/docs/img/logo.png
+    keywords:
+    - active-mq
+    - activemq
+    maintainers:
+    - email: dc.nim94@gmail.com
+      name: Nim
+    name: active-mq
+    sources:
+    - https://github.com/underndog/activemq-helm-chart
+    type: application
+    urls:
+    - https://underndog.github.io/activemq-helm-chart/active-mq-1.3.2.tgz
+    version: 1.3.2
+  - apiVersion: v2
+    appVersion: 2.39.0
+    created: "2025-04-09T14:07:07.893359463+07:00"
     description: A Helm chart for Kubernetes
     digest: 6d17f606f55d623b34f93b2dfc44d32a7e7a0913408cd738dbb2f2fbb396618f
     home: https://nimtechnology.com/
@@ -23,7 +43,7 @@ entries:
     version: 1.3.1
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.533373913+07:00"
+    created: "2025-04-09T14:07:07.892328471+07:00"
     description: A Helm chart for Kubernetes
     digest: be4d58c1c15885a280c193a7931078f009243358caa3c8430fee145ee7014f7d
     home: https://nimtechnology.com/
@@ -43,7 +63,7 @@ entries:
     version: 1.3.0
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.532929327+07:00"
+    created: "2025-04-09T14:07:07.891209485+07:00"
     description: A Helm chart for Kubernetes
     digest: 251454afa378c9e9e06c6c88982cb50d242fced2d2d12c125e740b38e0b4bac4
     home: https://nimtechnology.com/
@@ -63,7 +83,7 @@ entries:
     version: 1.2.2
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.532485109+07:00"
+    created: "2025-04-09T14:07:07.890249681+07:00"
     description: A Helm chart for Kubernetes
     digest: 3b91613515d8ddf1836d4a064a49a08927a20efb9b07e751e7b9b9cbeb1b2299
     home: https://nimtechnology.com/
@@ -83,7 +103,7 @@ entries:
     version: 1.2.1
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.531983546+07:00"
+    created: "2025-04-09T14:07:07.889288579+07:00"
     description: A Helm chart for Kubernetes
     digest: 9197baf0683aba261078cb338fb363c6d259719dd71b366359af7c142e0e9172
     home: https://nimtechnology.com/
@@ -103,7 +123,7 @@ entries:
     version: 1.2.0
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.530176697+07:00"
+    created: "2025-04-09T14:07:07.887563577+07:00"
     description: A Helm chart for Kubernetes
     digest: 6113f16a2bb5aa6c4baa18af7cb04f55fb1ec23807319992a5f310e76bb61cad
     name: active-mq
@@ -113,7 +133,7 @@ entries:
     version: 1.1.0
   - apiVersion: v2
     appVersion: 2.39.0
-    created: "2025-04-08T18:41:47.529865576+07:00"
+    created: "2025-04-09T14:07:07.886723594+07:00"
     description: A Helm chart for Kubernetes
     digest: 2df4b20cc616ca7478e9c9c963d86ab7ebd8efc7e4bac346632f2d8cabcff22d
     name: active-mq
@@ -121,4 +141,4 @@ entries:
     urls:
     - https://underndog.github.io/activemq-helm-chart/active-mq-1.0.0.tgz
     version: 1.0.0
-generated: "2025-04-08T18:41:47.528484425+07:00"
+generated: "2025-04-09T14:07:07.884705199+07:00"
