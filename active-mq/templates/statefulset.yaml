@@ -53,25 +53,33 @@ spec:
             - '-c'
           args:
             - >-
-              cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password
-              && \
+              # Create default JMX access and password files if not provided via secret
+              mkdir -p /var/lib/artemis-instance/jmx/ && \
+              
+              if [ -f /config-readonly/jmxremote.password ]; then
+                # Copy files from the secret if it exists
+                cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password && \
+                cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access
+              else
+                # Create files with environment variables directly
+                echo "$ARTEMIS_USER readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access && \
+                echo "$ARTEMIS_USER $ARTEMIS_PASSWORD" > /var/lib/artemis-instance/jmx/jmxremote.password
+              fi && \
 
-              cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access && \
+              # Make sure placeholders are replaced in all cases
+              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.access && \
+              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.password && \
+              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/jmxremote.password && \
 
-              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.access &&
+              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml && \
+              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/config.yml && \
+              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/config.yml && \
 
-              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.password &&
-              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/jmxremote.password &&
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password && \
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access && \
 
-              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml &&
-              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/config.yml &&
-              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/config.yml &&
-
-              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password &&
-              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access &&
-
-              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password &&
-              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access &&
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password && \
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access && \
 
               ls -la /var/lib/artemis-instance/jmx/
           securityContext:
@@ -84,9 +92,11 @@ spec:
               readOnly: true
             - mountPath: /var/lib/artemis-instance/jmx/
               name: jmx-config-writable
+            {{- if and (ne .Values.monitoring.jmx.username "<ARTEMIS_USERNAME>") (ne .Values.monitoring.jmx.password "<ARTEMIS_PASSWORD>") }}
             - mountPath: /config-readonly
               name: jmx-credentials
               readOnly: true
+            {{- end }}
         {{- end }}
         {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
@@ -197,10 +207,12 @@ spec:
                 path: config.yml
             name: jmx-exporter-config
           name: jmx-config-files
+        {{- if and (ne .Values.monitoring.jmx.username "<ARTEMIS_USERNAME>") (ne .Values.monitoring.jmx.password "<ARTEMIS_PASSWORD>") }}
         - secret:
             secretName: jmx-credentials
             defaultMode: 0600  # Proper permissions for JMX files
           name: jmx-credentials
+        {{- end }}
         - emptyDir: {}
           name: jmx-config-writable
         {{- end }}
