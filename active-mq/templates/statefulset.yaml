@@ -56,14 +56,13 @@ spec:
               mkdir -p /var/lib/artemis-instance/jmx/ && 
               
               if [ -f /config-readonly/jmxremote.password ]; then
-               
                 cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password && \
                 cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access
               else
                 
                 echo "$ARTEMIS_USER readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access && \
                 echo "$ARTEMIS_USER $ARTEMIS_PASSWORD" > /var/lib/artemis-instance/jmx/jmxremote.password
-              fi && 
+              fi 
               
               
               sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.access && \
