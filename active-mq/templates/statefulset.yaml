@@ -53,20 +53,19 @@ spec:
             - '-c'
           args:
             - >-
-              # Create default JMX access and password files if not provided via secret
               mkdir -p /var/lib/artemis-instance/jmx/ && 
               
               if [ -f /config-readonly/jmxremote.password ]; then
-                # Copy files from the secret if it exists
+               
                 cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password && \
                 cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access
               else
-                # Create files with environment variables directly
+                
                 echo "$ARTEMIS_USER readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access && \
                 echo "$ARTEMIS_USER $ARTEMIS_PASSWORD" > /var/lib/artemis-instance/jmx/jmxremote.password
               fi && 
               
-              # Make sure placeholders are replaced in all cases
+              
               sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.access && \
               sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.password && \
               sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/jmxremote.password && \
