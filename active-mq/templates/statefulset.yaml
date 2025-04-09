@@ -59,7 +59,7 @@ spec:
               cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access && \
 
               sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.access &&
-              
+
               sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.password &&
               sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/jmxremote.password &&
 
@@ -79,14 +79,14 @@ spec:
           env:
             {{- include "active-mq.artemisEnvVars" . | nindent 12 }}
           volumeMounts:
-            - mountPath: /config-readonly
-              name: jmx-credentials
-              readOnly: true
             - mountPath: /config-files
               name: jmx-config-files
               readOnly: true
             - mountPath: /var/lib/artemis-instance/jmx/
               name: jmx-config-writable
+            - mountPath: /config-readonly
+              name: jmx-credentials
+              readOnly: true
         {{- end }}
         {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
