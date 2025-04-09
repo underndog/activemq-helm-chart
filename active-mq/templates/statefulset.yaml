@@ -53,13 +53,15 @@ spec:
             - '-c'
           args:
             - >-
-              mkdir -p /var/lib/artemis-instance/jmx/ &&
-              
-              touch /var/lib/artemis-instance/jmx/jmxremote.access &&
-              touch /var/lib/artemis-instance/jmx/jmxremote.password &&
+              cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password
+              && \
 
-              echo "${ARTEMIS_USER} readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access &&
-              echo "${ARTEMIS_USER} ${ARTEMIS_PASSWORD}" > /var/lib/artemis-instance/jmx/jmxremote.password &&
+              cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access && \
+
+              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.access &&
+              
+              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/jmxremote.password &&
+              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/jmxremote.password &&
 
               cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml &&
               sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/config.yml &&
@@ -77,6 +79,9 @@ spec:
           env:
             {{- include "active-mq.artemisEnvVars" . | nindent 12 }}
           volumeMounts:
+            - mountPath: /config-readonly
+              name: jmx-credentials
+              readOnly: true
             - mountPath: /config-files
               name: jmx-config-files
               readOnly: true
@@ -192,6 +197,10 @@ spec:
                 path: config.yml
             name: jmx-exporter-config
           name: jmx-config-files
+        - secret:
+            secretName: jmx-credentials
+            defaultMode: 0600  # Proper permissions for JMX files
+          name: jmx-credentials
         - emptyDir: {}
           name: jmx-config-writable
         {{- end }}
