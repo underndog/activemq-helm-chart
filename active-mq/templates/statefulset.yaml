@@ -53,7 +53,6 @@ spec:
             - '-c'
           args:
             - |
-              #!/bin/sh
               set -e
               
               mkdir -p /var/lib/artemis-instance/jmx/
