@@ -53,27 +53,31 @@ spec:
             - '-c'
           args:
             - >-
-              mkdir -p /var/lib/artemis-instance/jmx/ && 
-              
+              mkdir -p /var/lib/artemis-instance/jmx/
+
               if [ -f /config-readonly/jmxremote.password ]; then
-                cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password && \
+                cp /config-readonly/jmxremote.password /var/lib/artemis-instance/jmx/jmxremote.password
                 cp /config-readonly/jmxremote.access /var/lib/artemis-instance/jmx/jmxremote.access
               else
-                
-                echo "$ARTEMIS_USER readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access && \
+                echo "$ARTEMIS_USER readwrite" > /var/lib/artemis-instance/jmx/jmxremote.access
                 echo "$ARTEMIS_USER $ARTEMIS_PASSWORD" > /var/lib/artemis-instance/jmx/jmxremote.password
-              fi 
-              
-              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml && \
-              sed -i "s/<ARTEMIS_USERNAME>/$ARTEMIS_USER/g" /var/lib/artemis-instance/jmx/config.yml && \
-              sed -i "s/<ARTEMIS_PASSWORD>/$ARTEMIS_PASSWORD/g" /var/lib/artemis-instance/jmx/config.yml && 
-              
-              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password && \
-              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access && \
-              
-              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password && \
-              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access && \
-              
+              fi
+
+              # Replace placeholders
+              sed -i "s/<ARTEMIS_USERNAME>/${ARTEMIS_USER}/g" /var/lib/artemis-instance/jmx/jmxremote.access
+              sed -i "s/<ARTEMIS_USERNAME>/${ARTEMIS_USER}/g" /var/lib/artemis-instance/jmx/jmxremote.password
+              sed -i "s/<ARTEMIS_PASSWORD>/${ARTEMIS_PASSWORD}/g" /var/lib/artemis-instance/jmx/jmxremote.password
+
+              cp /config-files/config.yml /var/lib/artemis-instance/jmx/config.yml
+              sed -i "s/<ARTEMIS_USERNAME>/${ARTEMIS_USER}/g" /var/lib/artemis-instance/jmx/config.yml
+              sed -i "s/<ARTEMIS_PASSWORD>/${ARTEMIS_PASSWORD}/g" /var/lib/artemis-instance/jmx/config.yml
+
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.password
+              chmod 600 /var/lib/artemis-instance/jmx/jmxremote.access
+
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.password
+              chown 1001:1001 /var/lib/artemis-instance/jmx/jmxremote.access
+
               ls -la /var/lib/artemis-instance/jmx/
           securityContext:
             runAsUser: 0
