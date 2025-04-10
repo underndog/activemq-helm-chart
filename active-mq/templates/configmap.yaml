@@ -33,10 +33,20 @@ data:
       <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:activemq:core ">
 
-          <name>0.0.0.0</name>
-
+          <n>0.0.0.0</n>
 
           <persistence-enabled>true</persistence-enabled>
+
+          <!-- HA Policy Configuration -->
+          <ha-policy>
+            <replication>
+              <master>
+                <group-name>activemq-cluster</group-name>
+                <check-for-live-server>true</check-for-live-server>
+                <allow-failback>true</allow-failback>
+              </master>
+            </replication>
+          </ha-policy>
 
           <!-- It is recommended to keep this value as 1, maximizing the number of records stored about redeliveries.
               However if you must preserve state of individual redeliveries, you may increase this value or set it to -1 (infinite). -->
@@ -189,6 +199,29 @@ data:
 
           </acceptors>
 
+          <!-- Cluster connections for replication -->
+          <cluster-connections>
+            <cluster-connection name="activemq-cluster">
+              <connector-ref>artemis</connector-ref>
+              <retry-interval>1000</retry-interval>
+              <use-duplicate-detection>true</use-duplicate-detection>
+              <message-load-balancing>ON_DEMAND</message-load-balancing>
+              <max-hops>1</max-hops>
+              <discovery-group-ref discovery-group-name="dg-group1"/>
+            </cluster-connection>
+          </cluster-connections>
+
+          <!-- Kubernetes discovery -->
+          <discovery-groups>
+            <discovery-group name="dg-group1">
+              <initial-wait-timeout>10000</initial-wait-timeout>
+              <refresh-timeout>10000</refresh-timeout>
+              <kubernetes-refresh>5000</kubernetes-refresh>
+              <kubernetes-namespace>${KUBERNETES_NAMESPACE}</kubernetes-namespace>
+              <kubernetes-label-name>app</kubernetes-label-name>
+              <kubernetes-label-value>${ACTIVEMQ_APP_NAME}</kubernetes-label-value>
+            </discovery-group>
+          </discovery-groups>
 
           <security-settings>
             <security-setting match="#">

@@ -1,21 +1,20 @@
-# templates/statefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "active-mq.fullname" . }}
+  name: {{ include "active-mq.fullname" . }}-slave
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: {{ .Values.replicaCount }}
-  serviceName: {{ include "active-mq.fullname" . }}
+  replicas: 1
+  serviceName: {{ include "active-mq.fullname" . }}-slave
   selector:
     matchLabels:
       app: {{ include "active-mq.name" . }}
-      role: master
+      role: slave
   template:
     metadata:
       labels:
         app: {{ include "active-mq.name" . }}
-        role: master
+        role: slave
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -35,10 +34,6 @@ spec:
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
@@ -102,7 +97,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-slave
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with .Values.securityContext }}
@@ -169,16 +164,15 @@ spec:
           
           volumeMounts:
             - mountPath: /var/lib/artemis-instance/etc-override/broker.xml
-              name: artemis-config-volume
+              name: artemis-slave-config-volume
               subPath: broker.xml
             {{- if .Values.monitoring.jmx.enabled }}
             - mountPath: /var/lib/artemis-instance/jmx/
               name: jmx-config-writable
             {{- end }}
-          {{- with .Values.volumeMounts }}
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-        
+            - mountPath: /var/lib/artemis-instance/data
+              name: artemis-slave-storage
+          
         {{- if .Values.monitoring.jmx.enabled }}
         - name: jmx-exporter
           image: {{ .Values.monitoring.jmx.exporter.image | default "bitnami/jmx-exporter:1.1.0" }}
@@ -203,8 +197,8 @@ spec:
       volumes:
         - configMap:
             defaultMode: 420
-            name: active-mq-config
-          name: artemis-config-volume
+            name: {{ include "active-mq.fullname" . }}-slave-config
+          name: artemis-slave-config-volume
         {{- if .Values.monitoring.jmx.enabled }}
         - configMap:
             defaultMode: 420
@@ -222,12 +216,10 @@ spec:
         - emptyDir: {}
           name: jmx-config-writable
         {{- end }}
-      {{- with .Values.volumes }}
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        
   volumeClaimTemplates:
     - metadata:
-        name: artemis-persistent-storage
+        name: artemis-slave-storage
       spec:
         accessModes: ["ReadWriteOnce"]
         {{- if .Values.persistence.storageClass.create }}
@@ -235,4 +227,4 @@ spec:
         {{- end }}
         resources:
           requests:
-            storage: {{ .Values.persistence.size }}
+            storage: {{ .Values.persistence.size }} 
