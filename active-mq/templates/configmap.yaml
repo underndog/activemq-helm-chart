@@ -43,7 +43,6 @@ data:
               <master>
                 <group-name>activemq-cluster</group-name>
                 <check-for-live-server>true</check-for-live-server>
-                <allow-failback>true</allow-failback>
               </master>
             </replication>
           </ha-policy>
