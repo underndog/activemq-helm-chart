@@ -166,6 +166,9 @@ spec:
             - mountPath: /var/lib/artemis-instance/etc-override/broker.xml
               name: artemis-slave-config-volume
               subPath: broker.xml
+            - mountPath: /var/lib/artemis-instance/etc/jgroups-kubernetes.xml
+              name: jgroups-config-volume
+              subPath: jgroups-kubernetes.xml
             {{- if .Values.monitoring.jmx.enabled }}
             - mountPath: /var/lib/artemis-instance/jmx/
               name: jmx-config-writable
@@ -199,6 +202,10 @@ spec:
             defaultMode: 420
             name: {{ include "active-mq.fullname" . }}-slave-config
           name: artemis-slave-config-volume
+        - configMap:
+            defaultMode: 420
+            name: {{ include "active-mq.fullname" . }}-jgroups
+          name: jgroups-config-volume
         {{- if .Values.monitoring.jmx.enabled }}
         - configMap:
             defaultMode: 420

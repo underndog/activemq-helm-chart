@@ -77,10 +77,8 @@ data:
             <discovery-group name="dg-group1">
               <initial-wait-timeout>10000</initial-wait-timeout>
               <refresh-timeout>10000</refresh-timeout>
-              <kubernetes-refresh>5000</kubernetes-refresh>
-              <kubernetes-namespace>${KUBERNETES_NAMESPACE}</kubernetes-namespace>
-              <kubernetes-label-name>app</kubernetes-label-name>
-              <kubernetes-label-value>${ACTIVEMQ_APP_NAME}</kubernetes-label-value>
+              <jgroups-file>jgroups-kubernetes.xml</jgroups-file>
+              <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
             </discovery-group>
           </discovery-groups>
 
