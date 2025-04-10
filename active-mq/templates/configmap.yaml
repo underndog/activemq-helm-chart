@@ -33,7 +33,7 @@ data:
       <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="urn:activemq:core ">
 
-          <n>0.0.0.0</n>
+          <name>0.0.0.0</name>
 
           <persistence-enabled>true</persistence-enabled>
 
