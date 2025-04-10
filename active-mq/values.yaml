@@ -124,28 +124,28 @@ persistence:
   storageClass:
     # If create is true, will create a new StorageClass
     create: false
-    # # Name of the StorageClass to use/create
-    # name: "gp3"
-    # # StorageClass provisioner
-    # provisioner: "ebs.csi.aws.com"
-    # # StorageClass parameters
-    # parameters:
-    #   type: "gp3"
-    #   encrypted: "true"
-    #   iops: "3000"
-    #   throughput: "125"
-    # # Reclaim policy: Delete or Retain
-    # reclaimPolicy: "Retain"
-    # # Volume binding mode: WaitForFirstConsumer or Immediate
-    # volumeBindingMode: "WaitForFirstConsumer"
+    # Name of the StorageClass to use/create
+    name: "gp3"
+    # StorageClass provisioner
+    provisioner: "ebs.csi.aws.com"
+    # StorageClass parameters
+    parameters:
+      type: "gp3"
+      encrypted: "true"
+      iops: "3000"
+      throughput: "125"
+    # Reclaim policy: Delete or Retain
+    reclaimPolicy: "Retain"
+    # Volume binding mode: WaitForFirstConsumer or Immediate
+    volumeBindingMode: "WaitForFirstConsumer"
 
 #######################
 # Volume Settings    #
 #######################
-volumes:
-  - name: artemis-persistent-storage
-    persistentVolumeClaim:
-      claimName: pvc-activemq-artemis
+volumes: {}
+  # - name: artemis-persistent-storage
+  #   persistentVolumeClaim:
+  #     claimName: pvc-activemq-artemis
 
 volumeMounts:
   - name: artemis-persistent-storage

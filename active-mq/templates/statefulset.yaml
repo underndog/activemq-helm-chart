@@ -217,3 +217,14 @@ spec:
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: artemis-persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.persistence.storageClass.create }}
+        storageClassName: {{ .Values.persistence.storageClass.name }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}
