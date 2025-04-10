@@ -166,7 +166,7 @@ spec:
             - mountPath: /var/lib/artemis-instance/etc-override/broker.xml
               name: artemis-slave-config-volume
               subPath: broker.xml
-            - mountPath: /var/lib/artemis-instance/etc/jgroups-kubernetes.xml
+            - mountPath: /var/lib/artemis-instance/etc-override/jgroups-kubernetes.xml
               name: jgroups-config-volume
               subPath: jgroups-kubernetes.xml
             {{- if .Values.monitoring.jmx.enabled }}
