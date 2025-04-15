@@ -179,3 +179,6 @@ monitoring:
       #   requests:
       #     cpu: "120m"
       #     memory: "500Mi"
+      #   limits:
+      #     cpu: "1200m"
+      #     memory: "3000Mi"
