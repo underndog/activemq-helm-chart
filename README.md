@@ -140,6 +140,7 @@ envVars:
 | `monitoring.jmx.exporter.hostPort` | JMX host and port | `127.0.0.1:1098` |
 | `monitoring.jmx.exporter.lowercaseOutputName` | Convert output metric names to lowercase | `true` |
 | `monitoring.jmx.exporter.lowercaseOutputLabelNames` | Convert output label names to lowercase | `true` |
+| `monitoring.jmx.exporter.resources` | Resource requests and limits for JMX exporter | See [values.yaml](active-mq/values.yaml) |
 | `monitoring.jmx.username` | JMX username | env `$ARTEMIS_USER` |
 | `monitoring.jmx.password` | JMX password | env `$ARTEMIS_PASSWORD` |
 
@@ -164,6 +165,14 @@ monitoring:
     enabled: true
     username: "admin"  # Optional: custom JMX username
     password: "admin"  # Optional: custom JMX password
+    exporter:
+      resources:
+        requests:
+          cpu: "120m"
+          memory: "500Mi"
+        # limits:
+        #   cpu: "200m"
+        #   memory: "1Gi"
 ```
 
 ## Configuration
