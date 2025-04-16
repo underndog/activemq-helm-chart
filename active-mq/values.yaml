@@ -175,3 +175,10 @@ monitoring:
       hostPort: "127.0.0.1:1098"
       lowercaseOutputName: true
       lowercaseOutputLabelNames: true
+      # resources:
+      #   requests:
+      #     cpu: "120m"
+      #     memory: "500Mi"
+      #   limits:
+      #     cpu: "1200m"
+      #     memory: "3000Mi"
