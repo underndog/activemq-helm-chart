@@ -90,3 +90,14 @@ Common Artemis environment variables
       name: {{ if .Values.authentication.existingSecret }}{{ .Values.authentication.existingSecret }}{{ else }}{{ include "active-mq.fullname" . }}-credentials{{ end }}
       key: {{ default "ACTIVEMQ_PASSWORD" .Values.authentication.secretKeys.password }}
 {{- end -}}
+
+{{/*
+Determine storage class name for PVC
+*/}}
+{{- define "active-mq.storageClassName" -}}
+{{- if .Values.persistence.storageClass.create -}}
+  {{- .Values.persistence.storageClass.name | default (printf "%s-sc" (include "active-mq.fullname" .)) -}}
+{{- else if .Values.persistence.storageClass.name -}}
+  {{- .Values.persistence.storageClass.name -}}
+{{- end -}}
+{{- end -}}

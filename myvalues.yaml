@@ -1,0 +1,184 @@
+# Default values for active-mq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#######################
+# Global Settings    #
+#######################
+nameOverride: ""
+fullnameOverride: ""
+replicaCount: 1
+
+#######################
+# Image Settings     #
+#######################
+image:
+  repository: apache/activemq-artemis
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: 2.39.0
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+#######################
+# Security Settings  #
+#######################
+serviceAccount:
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Authentication configuration (Required for ActiveMQ)
+authentication:
+  create: true  # Set to false to not create a secret for credentials
+  existingSecret: ""  # Specify existing secret name for credentials, if not provided will create new secret
+  # Default credentials (used only if existingSecret is not provided)
+  defaultUsername: "admin"  # Default username if not using existing secret
+  defaultPassword: ""  # If empty, will generate random password
+  # Secret key names
+  secretKeys:
+    username: "ACTIVEMQ_USER"  # Key name for username in the secret
+    password: "ACTIVEMQ_PASSWORD"  # Key name for password in the secret
+
+podSecurityContext:
+  # Set fsGroup to 1001 which corresponds to the 'artemis' group in the container
+  # This ensures mounted volumes have correct artemis group permissions
+  fsGroup: 1001
+
+# securityContext:
+#   runAsNonRoot: true
+#   runAsUser: 1000
+
+#######################
+# Pod Settings       #
+#######################
+podAnnotations: {}
+podLabels: {}
+
+# Resource limits and requests
+resources: {}
+  # limits:
+  #   cpu: "500m"
+  #   memory: "1Gi"
+  # requests:
+  #   cpu: "200m"
+  #   memory: "512Mi"
+
+# Pod scheduling settings
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+#######################
+# Service Settings   #
+#######################
+service:
+  type: ClusterIP
+  ports:
+    - name: stomp
+      port: 61613
+      targetPort: 61613
+    - name: amqp
+      port: 5672
+      targetPort: 5672
+    - name: web-console
+      port: 8161
+      targetPort: 8161
+    - name: core
+      port: 61616
+      targetPort: 61616
+
+#######################
+# Health Checks      #
+#######################
+livenessProbe:
+  httpGet:
+    path: /console/health
+    port: 8161
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /console/health
+    port: 8161
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  periodSeconds: 10
+
+#######################
+# Storage Settings   #
+#######################
+persistence:
+  claimName: pvc-activemq-artemis
+  size: 10Gi
+  # StorageClass configuration
+  storageClass:
+    # If create is true, will create a new StorageClass
+    create: false
+    # # Name of the StorageClass to use/create
+    name: "gp3"
+    # # StorageClass provisioner
+    # provisioner: "ebs.csi.aws.com"
+    # # StorageClass parameters
+    # parameters:
+    #   type: "gp3"
+    #   encrypted: "true"
+    #   iops: "3000"
+    #   throughput: "125"
+    # # Reclaim policy: Delete or Retain
+    # reclaimPolicy: "Retain"
+    # # Volume binding mode: WaitForFirstConsumer or Immediate
+    # volumeBindingMode: "WaitForFirstConsumer"
+
+#######################
+# Volume Settings    #
+#######################
+volumes:
+  - name: artemis-persistent-storage
+    persistentVolumeClaim:
+      claimName: pvc-activemq-artemis
+
+volumeMounts:
+  - name: artemis-persistent-storage
+    mountPath: /var/lib/artemis-instance/data
+
+config:
+  brokerXml:
+    global-max-size: 100Mb
+
+envVars:
+  JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
+
+
+#######################
+# Monitoring Settings #
+#######################
+monitoring:
+  enabled: true
+  # JMX monitoring configuration
+  jmx:
+    enabled: true
+    username: <ARTEMIS_USERNAME> #Placeholder for the username, will be replaced to use $ARTEMIS_USER
+    password: <ARTEMIS_PASSWORD> #Placeholder for the password, will be replaced to use $ARTEMIS_PASSWORD
+    exporter:
+      image: "bitnami/jmx-exporter:1.1.0"
+      pullPolicy: IfNotPresent
+      hostPort: "127.0.0.1:1098"
+      lowercaseOutputName: true
+      lowercaseOutputLabelNames: true
+      # resources:
+      #   requests:
+      #     cpu: "120m"
+      #     memory: "500Mi"
+      #   limits:
+      #     cpu: "1200m"
+      #     memory: "3000Mi"
