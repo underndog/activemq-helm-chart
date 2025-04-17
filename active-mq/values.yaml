@@ -17,7 +17,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 2.39.0
+  tag: 2.40.0
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -170,7 +170,7 @@ monitoring:
     username: <ARTEMIS_USERNAME> #Placeholder for the username, will be replaced to use $ARTEMIS_USER
     password: <ARTEMIS_PASSWORD> #Placeholder for the password, will be replaced to use $ARTEMIS_PASSWORD
     exporter:
-      image: "bitnami/jmx-exporter:1.1.0"
+      image: "bitnami/jmx-exporter:1.2.0"
       pullPolicy: IfNotPresent
       hostPort: "127.0.0.1:1098"
       lowercaseOutputName: true
