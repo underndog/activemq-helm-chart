@@ -46,7 +46,7 @@ spec:
       initContainers:
         {{- if .Values.monitoring.jmx.enabled }}
         - name: copy-and-fix-permissions
-          image: quay.io/nimtechnology/busybox:1.32.0
+          image: busybox:1.37.0
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh

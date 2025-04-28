@@ -135,14 +135,46 @@ envVars:
 | --- | --- | --- |
 | `monitoring.enabled` | Enable monitoring components | `true` |
 | `monitoring.jmx.enabled` | Enable JMX monitoring | `true` |
-| `monitoring.jmx.username` | JMX username | env `$ARTEMIS_USER` |
-| `monitoring.jmx.password` | JMX password | env `$ARTEMIS_PASSWORD` |
 | `monitoring.jmx.exporter.image` | JMX exporter image | `bitnami/jmx-exporter:1.1.0` |
 | `monitoring.jmx.exporter.pullPolicy` | JMX exporter image pull policy | `IfNotPresent` |
 | `monitoring.jmx.exporter.hostPort` | JMX host and port | `127.0.0.1:1098` |
 | `monitoring.jmx.exporter.lowercaseOutputName` | Convert output metric names to lowercase | `true` |
 | `monitoring.jmx.exporter.lowercaseOutputLabelNames` | Convert output label names to lowercase | `true` |
-| `monitoring.jmx.exporter.resources` | Resource requests and limits for JMX exporter | See [values.yaml](values.yaml) |
+| `monitoring.jmx.exporter.resources` | Resource requests and limits for JMX exporter | See [values.yaml](active-mq/values.yaml) |
+| `monitoring.jmx.username` | JMX username | env `$ARTEMIS_USER` |
+| `monitoring.jmx.password` | JMX password | env `$ARTEMIS_PASSWORD` |
+
+### JMX Monitoring
+
+The chart provides JMX monitoring capabilities for ActiveMQ Artemis. JMX monitoring allows you to:
+
+*   Monitor broker performance metrics
+*   Track queue and topic statistics
+*   Observe message flow and consumption rates
+
+JMX authentication uses dedicated credentials that can be configured via values:
+
+*   Username: Set with `monitoring.jmx.username` (default: env `$ARTEMIS_USER`)
+*   Password: Set with `monitoring.jmx.password` (default: env `$ARTEMIS_PASSWORD`)
+
+To enable JMX monitoring with customized username and password:
+
+```plaintext
+monitoring:
+  enabled: true
+  jmx:
+    enabled: true
+    username: "admin"  # Optional: custom JMX username
+    password: "admin"  # Optional: custom JMX password
+    exporter:
+      resources:
+        requests:
+          cpu: "120m"
+          memory: "500Mi"
+        # limits:
+        #   cpu: "200m"
+        #   memory: "1Gi"
+```
 
 ## Configuration
 
@@ -151,7 +183,6 @@ envVars:
 The ActiveMQ configuration is stored in a ConfigMap and mounted to the container. The following files are included:
 
 *   `broker.xml` - Main broker configuration
-    
 
 You can customize the `broker.xml` files by modifying brokerXml in [values.yaml](values.yaml).  
 Example:
@@ -206,12 +237,23 @@ kubectl port-forward svc/my-activemq 8161:8161
 
 Then open http://localhost:8161/console in your browser.
 
+### Prometheus Metrics
+
+The JMX exporter exposes ActiveMQ metrics in Prometheus format on port 9404. Access these metrics with:
+
+```plaintext
+kubectl port-forward svc/my-activemq 9404:9404
+```
+
+Then open http://localhost:9404/metrics in your browser or configure your Prometheus instance to scrape this endpoint.
+
 ## Metrics and Monitoring
 
-The chart includes Prometheus annotations for scraping metrics. The metrics are exposed on port 9404.
+The chart includes Prometheus annotations for scraping metrics. The metrics are exposed on port 9404 by the JMX exporter sidecar container.
 
 When `monitoring.enabled` is set to `true`, the following annotations are added to the pod:
-```yaml
+
+```plaintext
 prometheus.io/scrape: "true"
 prometheus.io/port: "9404"
 prometheus.io/path: "/metrics"
@@ -223,49 +265,24 @@ This enables automatic discovery by Prometheus if your cluster has service disco
 
 The JMX exporter provides various metrics, including:
 
-- Queue depths
-- Message counts (enqueued, dequeued)
-- Consumer counts
-- Memory usage
-- Connection statistics
-- Broker status
+*   Queue depths
+*   Message counts (enqueued, dequeued)
+*   Consumer counts
+*   Memory usage
+*   Connection statistics
+*   Broker status
 
-### JMX Monitoring
+### JMX Configuration
 
-The chart provides JMX monitoring capabilities for ActiveMQ Artemis using a JMX exporter sidecar container. JMX monitoring allows you to:
+The JMX configuration is stored in a ConfigMap (`jmx-exporter-config`) and mounted to both the ActiveMQ container and JMX exporter container. The JMX exporter uses this configuration to connect to the JMX port and expose metrics.
 
-- Monitor broker performance metrics
-- Track queue and topic statistics
-- Observe message flow and consumption rates
+An init container creates the necessary JMX credentials files using the same authentication credentials as the main ActiveMQ broker. This ensures consistent authentication between broker and JMX access.
 
-JMX authentication uses dedicated credentials that can be configured via values:
-- Username: Set with `monitoring.jmx.username` (default: `admin`)
-- Password: Set with `monitoring.jmx.password` (default: `admin`)
+### Grafana Dashboard
 
-To enable JMX monitoring with customized resources:
+We also released the ActiveMQ Artemis Dashboard:
 
-```yaml
-monitoring:
-  enabled: true
-  jmx:
-    enabled: true
-    exporter:
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "128Mi"
-        # limits:
-        #   cpu: "200m" 
-        #   memory: "256Mi"
-```
-
-To access Prometheus metrics from outside the cluster:
-
-```plaintext
-kubectl port-forward svc/my-activemq 9404:9404
-```
-
-Then open http://localhost:9404/metrics in your browser or configure your Prometheus instance to scrape this endpoint.
+[https://grafana.com/grafana/dashboards/23349](https://grafana.com/grafana/dashboards/23349)
 
 ## Chart Structure
 
