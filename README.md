@@ -1,4 +1,4 @@
-# ActiveMQ Artemis Helm Chart
+## ActiveMQ Artemis Helm Chart
 
 This Helm chart deploys Apache ActiveMQ Artemis on Kubernetes, providing a reliable and scalable message broker.
 
@@ -148,17 +148,18 @@ envVars:
 
 The chart provides JMX monitoring capabilities for ActiveMQ Artemis. JMX monitoring allows you to:
 
-- Monitor broker performance metrics
-- Track queue and topic statistics
-- Observe message flow and consumption rates
+*   Monitor broker performance metrics
+*   Track queue and topic statistics
+*   Observe message flow and consumption rates
 
 JMX authentication uses dedicated credentials that can be configured via values:
-- Username: Set with `monitoring.jmx.username` (default: env `$ARTEMIS_USER`)
-- Password: Set with `monitoring.jmx.password` (default: env `$ARTEMIS_PASSWORD`)
+
+*   Username: Set with `monitoring.jmx.username` (default: env `$ARTEMIS_USER`)
+*   Password: Set with `monitoring.jmx.password` (default: env `$ARTEMIS_PASSWORD`)
 
 To enable JMX monitoring with customized username and password:
 
-```yaml
+```plaintext
 monitoring:
   enabled: true
   jmx:
@@ -182,7 +183,6 @@ monitoring:
 The ActiveMQ configuration is stored in a ConfigMap and mounted to the container. The following files are included:
 
 *   `broker.xml` - Main broker configuration
-    
 
 You can customize the `broker.xml` files by modifying brokerXml in [values.yaml](values.yaml).  
 Example:
@@ -252,7 +252,8 @@ Then open http://localhost:9404/metrics in your browser or configure your Promet
 The chart includes Prometheus annotations for scraping metrics. The metrics are exposed on port 9404 by the JMX exporter sidecar container.
 
 When `monitoring.enabled` is set to `true`, the following annotations are added to the pod:
-```yaml
+
+```plaintext
 prometheus.io/scrape: "true"
 prometheus.io/port: "9404"
 prometheus.io/path: "/metrics"
@@ -264,18 +265,24 @@ This enables automatic discovery by Prometheus if your cluster has service disco
 
 The JMX exporter provides various metrics, including:
 
-- Queue depths
-- Message counts (enqueued, dequeued)
-- Consumer counts
-- Memory usage
-- Connection statistics
-- Broker status
+*   Queue depths
+*   Message counts (enqueued, dequeued)
+*   Consumer counts
+*   Memory usage
+*   Connection statistics
+*   Broker status
 
 ### JMX Configuration
 
 The JMX configuration is stored in a ConfigMap (`jmx-exporter-config`) and mounted to both the ActiveMQ container and JMX exporter container. The JMX exporter uses this configuration to connect to the JMX port and expose metrics.
 
 An init container creates the necessary JMX credentials files using the same authentication credentials as the main ActiveMQ broker. This ensures consistent authentication between broker and JMX access.
+
+### Grafana Dashboard
+
+We also released the ActiveMQ Artemis Dashboard:
+
+[https://grafana.com/grafana/dashboards/23349](https://grafana.com/grafana/dashboards/23349)
 
 ## Chart Structure
 
