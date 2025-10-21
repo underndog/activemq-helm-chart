@@ -125,7 +125,7 @@ persistence:
     # If create is true, will create a new StorageClass
     create: false
     # # Name of the StorageClass to use/create
-    name: "gp3"
+    name: "default"
     # # StorageClass provisioner
     # provisioner: "ebs.csi.aws.com"
     # # StorageClass parameters
