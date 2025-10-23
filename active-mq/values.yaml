@@ -154,6 +154,34 @@ volumeMounts:
 config:
   brokerXml:
     global-max-size: 100Mb
+    # Custom addresses configuration
+    # addresses accepts:
+    # - a single string (creates anycast + queue with same name)
+    # - a list of strings
+    # - a map with name and optional anycast/multicast definitions
+    #   anycast/multicast can be:
+    #     - true  (creates a queue with the same name as address)
+    #     - string (single queue name)
+    #     - list of strings (multiple queue names)
+    # Defaults (DLQ and ExpiryQueue)
+    addresses:
+      - name: DLQ
+        anycast: true
+      - name: ExpiryQueue
+        anycast: true
+    # Example simple forms:
+    # addresses: orders
+    # addresses:
+    #   - orders
+    #   - payments
+    # Example advanced:
+    # addresses:
+    #   - name: orders
+    #     anycast: ["orders.in", "orders.retry"]
+    #     multicast: false
+    #   - name: topics
+    #     multicast: ["broadcast", "audit"]
+    # addresses: { name: notifications, anycast: true }
 
 envVars:
   JDK_JAVA_OPTIONS: -Xms512M -Xmx1G -Xlog:gc=debug:file=/tmp/gc.log
