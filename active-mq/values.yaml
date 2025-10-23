@@ -163,6 +163,12 @@ config:
     #     - true  (creates a queue with the same name as address)
     #     - string (single queue name)
     #     - list of strings (multiple queue names)
+    # Defaults (DLQ and ExpiryQueue)
+    addresses:
+      - name: DLQ
+        anycast: true
+      - name: ExpiryQueue
+        anycast: true
     # Example simple forms:
     # addresses: orders
     # addresses:

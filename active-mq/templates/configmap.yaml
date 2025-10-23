@@ -252,16 +252,6 @@ data:
           </address-settings>
 
           <addresses>
-            <address name="DLQ">
-                <anycast>
-                  <queue name="DLQ" />
-                </anycast>
-            </address>
-            <address name="ExpiryQueue">
-                <anycast>
-                  <queue name="ExpiryQueue" />
-                </anycast>
-            </address>
 {{- $addresses := (index .Values.config.brokerXml "addresses") }}
 {{- if $addresses }}
 {{- if kindIs "string" $addresses }}
